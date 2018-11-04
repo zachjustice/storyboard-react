@@ -4,7 +4,7 @@ import {Option} from "./Option";
 export class Choice extends React.Component {
     onClick(option) {
         this.setState({ selectedOption: option});
-        this.props.onClick(option);
+        this.props.onClick(option.next);
     }
 
     isSelectedOption(option) {
@@ -23,7 +23,7 @@ export class Choice extends React.Component {
     }
 
     render() {
-        const choice = this.props.value || {};
+        const choice = this.props.choice || {};
         const content = choice.content;
 
         return (
