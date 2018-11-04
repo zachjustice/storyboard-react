@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {Choice} from "./Choice";
 
 export class Storyboard extends React.Component {
+
     render() {
         console.log('choices', this.props.choices);
         return (
