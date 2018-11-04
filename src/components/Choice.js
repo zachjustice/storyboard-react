@@ -1,21 +1,36 @@
 import React from 'react';
+import {Option} from "./Option";
 
 export class Choice extends React.Component {
+    onClick(option) {
+        this.setState({ selectedOption: option});
+        this.props.onClick(option);
+    }
+
+    isSelectedOption(option) {
+        return this.state
+            && this.state.selectedOption
+            && this.state.selectedOption.id === option.id;
+    }
+
+    renderOptions(options) {
+        return (options || []).map(option => (
+            <Option value={option}
+                    isSelected={this.isSelectedOption(option)}
+                    key={'option' + option.id}
+                    onClick={() => this.onClick(option)} />
+        ));
+    }
+
     render() {
         const choice = this.props.value || {};
         const content = choice.content;
-        const options = (choice.options || []).map(option => (
-            <li onClick={() => this.props.onClick(option)}
-                key={'option' + option.id}>
-                {option.description}
-            </li>
-        ));
 
         return (
             <div className='choice'>
                 <p>{content}</p>
                 <ul>
-                    {options}
+                    {this.renderOptions(choice.options)}
                 </ul>
             </div>
         );
