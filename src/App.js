@@ -6,12 +6,15 @@ import {ChoicesService, INITIAL_CHOICE_ID} from './services/Choices.service';
 
 class App extends Component {
     choicesService = new ChoicesService();
-
     state = { choices: [ this.choicesService.getChoice(INITIAL_CHOICE_ID) ] };
 
-    choose = (choiceId, index) => {
+    choose = (parentChoice, selectedOption, index) => {
         this.setState((state) => {
-            const choices = state.choices.slice(0, index + 1).concat(this.choicesService.getChoice(choiceId));
+            (parentChoice.options || []).forEach(option => {
+                option.isSelected = option.id === selectedOption.id;
+            });
+
+            const choices = state.choices.slice(0, index + 1).concat(this.choicesService.getChoice(selectedOption.next));
             console.log('    new choices', choices);
             return {
                 ...state,

@@ -24,23 +24,27 @@ export class ChoicesService {
         return {
             id: choiceId,
             content: randomWords(3, 10),
-            options: Array(3).fill(null).map(() => this.createNewOption())
+            options: Array(randomInt(2,5)).fill(null).map(() => this.createNewOption())
         };
     }
 
     createNewOption() {
         return {
-            id: Math.random() * 10000000 >> 0,
+            id: randomInt(0, 1000000000),
             description: randomWords(3, 7),
             next: ++this.choiceId
         }
     }
 }
 
+function randomInt(min, max) {
+    return ( Math.random() * ( max - min ) + min ) >> 0
+}
+
 function randomWords(min, max) {
     let str = '';
 
-    const num = ( Math.random() * ( max - min ) + min ) >> 0
+    const num = randomInt(min, max);
     for (let i = 0; i < num; i++) {
         str += ' ' + words[Math.random() * words.length >> 0];
     }

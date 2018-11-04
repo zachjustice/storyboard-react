@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import {Choice} from "./Choice";
 
 export class Storyboard extends React.Component {
-
     render() {
         console.log('choices', this.props.choices);
         return (
@@ -11,7 +10,7 @@ export class Storyboard extends React.Component {
                 {this.props.choices.map((choice, index) => (
                     <Choice key={'choice-' + choice.id}
                             choice={choice}
-                            onClick={(choiceId) => this.props.onClick(choiceId, index)}/>
+                            onClick={(option) => this.props.onClick(choice, option, index)}/>
                 ))}
             </div>
         )
