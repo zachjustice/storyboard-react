@@ -23,7 +23,7 @@ export class ChoicesService {
     createNewChoice(choiceId) {
         return {
             id: choiceId,
-            content: randomWords(3, 10),
+            content: randomWords(10, 20),
             options: Array(randomInt(2,5)).fill(null).map(() => this.createNewOption())
         };
     }
