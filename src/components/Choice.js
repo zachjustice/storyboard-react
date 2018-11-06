@@ -1,34 +1,28 @@
 import React from 'react';
 import {Option} from "./Option";
 
-export class Choice extends React.Component {
-    render() {
-        const renderOptions = (options) => {
-            return (options || []).map(option => (
-                <Option value={option}
-                        key={'option-' + option.id}
-                        onClick={this.props.onClick} />
-            ));
-        };
+export function Choice(props) {
+    const choice = props.choice || {};
 
-        const choice = this.props.choice || {};
-        const content = choice.content;
-
-        return (
-            <div className='choice'>
-                <div className='flexContainer'>
-                    <div>
-                        <span className='bold'> > </span>
-                    </div>
-                    <div className='margin-left-1'>
-                        {content}
-                    </div>
+    return (
+        <div className='choice'>
+            <div className='flexContainer'>
+                <div>
+                    <span className='bold'> > </span>
                 </div>
-                <ol className='margin-left-1'>
-                    {renderOptions(choice.options)}
-                </ol>
+                <div className='margin-left-1'>
+                    {choice.content}
+                </div>
             </div>
-        );
-    }
+
+            <ol className='margin-left-1'>
+                {(choice.options || []).map(option => (
+                    <Option value={option}
+                            key={'option-' + option.id}
+                            onClick={props.onClick} />
+                ))}
+            </ol>
+        </div>
+    );
 }
 

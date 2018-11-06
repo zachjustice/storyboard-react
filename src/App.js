@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import './App.css';
 import {Storyboard} from './components/Storyboard';
 import {ChoicesService, INITIAL_CHOICE_ID} from './services/Choices.service';
-import { cloneDeep } from 'lodash';
+import {cloneDeep} from 'lodash';
 
 const keys = {
     backspace: 8,
