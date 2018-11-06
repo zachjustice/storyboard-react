@@ -6,16 +6,19 @@ export function Choice(props) {
 
     return (
         <div className='choice'>
-            <div className='flexContainer'>
+            <div className='flex-container'>
                 <div>
-                    <span className='bold'> > </span>
+                    <span className='bold caret'> > </span>
                 </div>
-                <div className='margin-left-1'>
+                <div>
+                    <span className='bold dir'> ~ </span>
+                </div>
+                <div className='choice-content'>
                     {choice.content}
                 </div>
             </div>
 
-            <ol className='margin-left-1'>
+            <ol className='option-list'>
                 {(choice.options || []).map(option => (
                     <Option value={option}
                             key={'option-' + option.id}

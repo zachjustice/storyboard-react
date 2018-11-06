@@ -1,12 +1,40 @@
+/* base styles */
 body {
   background: black;
   color: white;
   font-family: Courier, monospace;
 }
 
+/* components */
+
 .storyboard {
   width: 75%;
 }
+
+.caret {
+  color: #00ff00;
+}
+
+.dir {
+  margin-left: .5rem;
+  color: cyan;
+}
+
+.choice-content {
+  /*color: #00ff00;*/
+  margin-left: .5rem;
+}
+
+.option-list {
+  margin-left: 1.5rem;
+}
+
+.is-selected {
+  color: cyan;
+  /*color: #00ff00;*/
+}
+
+/* helpers */
 
 .font-grey {
   color: lightgrey;
@@ -20,7 +48,7 @@ body {
   font-style: italic;
 }
 
-.flexContainer {
+.flex-container {
   display: flex;
 }
 

@@ -4,7 +4,7 @@ export function Option(props) {
     const option = props.value || {};
     let spanClass = 'OptionText';
     if (option.isSelected) {
-        spanClass += ' bold';
+        spanClass += ' is-selected bold';
     }
 
     return (

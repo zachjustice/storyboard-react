@@ -43,10 +43,9 @@ class App extends Component {
     };
 
     onKeyDown = (event) => {
-        event.preventDefault();
 
         const lastChoice = this.state.choices[this.state.choices.length - 1] || {};
-        const availableOptions = (lastChoice.options || []);
+        let availableOptions = (lastChoice.options || []);
 
         let currOptionIndex = this.state.selectedOption === undefined
                                     ? -1
@@ -55,11 +54,13 @@ class App extends Component {
         switch (event.keyCode) {
             case keys.up:
                 currOptionIndex = Math.max(currOptionIndex - 1, 0);
-                updateSelectedOption(availableOptions, currOptionIndex);
+                lastChoice.options = updateSelectedOption(availableOptions, currOptionIndex);
+                event.preventDefault();
                 break;
             case keys.down:
                 currOptionIndex = Math.min(currOptionIndex + 1, availableOptions.length - 1);
-                updateSelectedOption(availableOptions, currOptionIndex);
+                lastChoice.options = updateSelectedOption(availableOptions, currOptionIndex);
+                event.preventDefault();
                 break;
             case keys.backspace:
                 if (this.state.choices.length > 1) {
@@ -97,6 +98,7 @@ class App extends Component {
         if (currOptionIndex > -1) {
             this.setState({selectedOption: currOptionIndex});
         }
+        console.log(`currOptionIndex ${currOptionIndex}`);
     };
 
     componentWillMount() {
