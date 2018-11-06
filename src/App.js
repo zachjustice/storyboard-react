@@ -9,7 +9,15 @@ const keys = {
     enter: 13,
     up: 38,
     down: 40,
+
     one: 49,
+    two: 50,
+    three: 51,
+    four: 52,
+    five: 53,
+    six: 54,
+    seven: 55,
+    eight: 56,
     nine: 57
 };
 
@@ -51,7 +59,24 @@ class App extends Component {
                 event.preventDefault();
                 break;
             case keys.backspace:
-                this.setState({ choices: this.state.choices.splice(0, this.state.choices.length - 1) });
+                if (this.state.choices.length > 1) {
+                    this.setState({ choices: this.state.choices.splice(0, this.state.choices.length - 1) });
+                }
+                break;
+            case keys.one:
+            case keys.two:
+            case keys.three:
+            case keys.four:
+            case keys.five:
+            case keys.six:
+            case keys.eight:
+            case keys.nine:
+                if (event.keyCode - keys.one < availableOptions.length) {
+                    currentSelectedOption = event.keyCode - keys.one;
+                } else {
+                    break;
+                }
+            // eslint-disable-next-line no-fallthrough
             case keys.enter:
                 if (currentSelectedOption > -1) {
                     this.choose(
@@ -63,17 +88,6 @@ class App extends Component {
                 }
                 break;
             default:
-                if (event.keyCode >= keys.one
-                    && event.keyCode <= keys.nine
-                    && (event.keyCode - keys.one < availableOptions.length)
-                ) {
-                    const index = event.keyCode - keys.one;
-                    this.choose(
-                        lastChoice,
-                        availableOptions[index],
-                        this.state.choices.length -1
-                    )
-                }
                 return;
         }
 
