@@ -4,12 +4,12 @@ import {Choice} from "./Choice";
 
 export class Storyboard extends React.Component {
     render() {
-        console.log('choices', this.props.choices);
         return (
             <div className='storyboard'>
                 {this.props.choices.map((choice, index) => (
                     <Choice key={'choice-' + choice.id}
                             choice={choice}
+                            isCurrentChoice={index === this.props.choices.length - 1}
                             onClick={(option) => this.props.onClick(choice, option, index)}/>
                 ))}
             </div>
