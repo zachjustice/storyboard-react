@@ -5,8 +5,7 @@ body {
 }
 
 .storyboard {
-  margin: 0 auto;
-  width: 90%;
+  width: 75%;
 }
 
 .font-grey {
@@ -27,4 +26,7 @@ body {
 
 .margin-left-1 {
   margin-left: 1rem;
+}
+.margin-top-1 {
+  margin-top: 1rem;
 }

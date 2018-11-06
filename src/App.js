@@ -43,20 +43,23 @@ class App extends Component {
     };
 
     onKeyDown = (event) => {
-        let currentSelectedOption = this.state.selectedOption;
+        event.preventDefault();
+
         const lastChoice = this.state.choices[this.state.choices.length - 1] || {};
         const availableOptions = (lastChoice.options || []);
 
-        if (currentSelectedOption === undefined) currentSelectedOption = -1;
+        let currOptionIndex = this.state.selectedOption === undefined
+                                    ? -1
+                                    : this.state.selectedOption ;
 
         switch (event.keyCode) {
             case keys.up:
-                currentSelectedOption = Math.max(currentSelectedOption - 1, 0);
-                event.preventDefault();
+                currOptionIndex = Math.max(currOptionIndex - 1, 0);
+                updateSelectedOption(availableOptions, currOptionIndex);
                 break;
             case keys.down:
-                currentSelectedOption = Math.min(currentSelectedOption + 1, availableOptions.length - 1);
-                event.preventDefault();
+                currOptionIndex = Math.min(currOptionIndex + 1, availableOptions.length - 1);
+                updateSelectedOption(availableOptions, currOptionIndex);
                 break;
             case keys.backspace:
                 if (this.state.choices.length > 1) {
@@ -72,16 +75,16 @@ class App extends Component {
             case keys.eight:
             case keys.nine:
                 if (event.keyCode - keys.one < availableOptions.length) {
-                    currentSelectedOption = event.keyCode - keys.one;
+                    currOptionIndex = event.keyCode - keys.one;
                 } else {
                     break;
                 }
             // eslint-disable-next-line no-fallthrough
             case keys.enter:
-                if (currentSelectedOption > -1) {
+                if (currOptionIndex > -1) {
                     this.choose(
                         lastChoice,
-                        availableOptions[currentSelectedOption],
+                        availableOptions[currOptionIndex],
                         this.state.choices.length - 1
                     );
                     return;
@@ -91,15 +94,13 @@ class App extends Component {
                 return;
         }
 
-        if (currentSelectedOption > -1) {
-            availableOptions.forEach(option => option.isSelected = false);
-            if (availableOptions.length) availableOptions[currentSelectedOption].isSelected = true;
-            this.setState({selectedOption: currentSelectedOption});
+        if (currOptionIndex > -1) {
+            this.setState({selectedOption: currOptionIndex});
         }
     };
 
     componentWillMount() {
-        document.addEventListener("keydown", this.onKeyDown);
+        document.addEventListener('keydown', this.onKeyDown);
     }
 
     componentDidUpdate() {
@@ -108,11 +109,18 @@ class App extends Component {
 
     render() {
         return (
-            <div className="App">
+            <div className="App margin-left-1 margin-top-1">
                 <Storyboard choices={this.state.choices} onClick={this.choose}/>
             </div>
         );
     }
+}
+
+function updateSelectedOption(options, selectedOptionIndex) {
+    options = cloneDeep(options || []);
+    options.forEach(option => option.isSelected = false);
+    if (options.length) options[selectedOptionIndex].isSelected = true;
+    return options;
 }
 
 export default App;

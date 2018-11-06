@@ -2,7 +2,6 @@ import React from 'react';
 import {Option} from "./Option";
 
 export class Choice extends React.Component {
-
     render() {
         const renderOptions = (options) => {
             return (options || []).map(option => (
