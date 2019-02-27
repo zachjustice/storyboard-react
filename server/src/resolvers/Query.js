@@ -1,31 +1,40 @@
-async function feed(parent, args, context) {
-    const where = args.filter
-        ? {
-            OR: [
-                { description_contains: args.filter },
-                { url_contains: args.filter },
-            ],
-        }
-        : {}
+// async function feed(parent, args, context) {
+//     const where = args.filter
+//         ? {
+//             OR: [
+//                 { description_contains: args.filter },
+//                 { url_contains: args.filter },
+//             ],
+//         }
+//         : {}
+//
+//     const links = await context.prisma.links({
+//         where,
+//         skip: args.skip,
+//         first: args.first,
+//         orderBy: args.orderBy,
+//     })
+//     const count = await context.prisma
+//         .linksConnection({
+//             where,
+//         })
+//         .aggregate()
+//         .count()
+//     return {
+//         links,
+//         count,
+//     }
+// }
 
-    const links = await context.prisma.links({
-        where,
-        skip: args.skip,
-        first: args.first,
-        orderBy: args.orderBy,
-    })
-    const count = await context.prisma
-        .linksConnection({
-            where,
-        })
-        .aggregate()
-        .count()
-    return {
-        links,
-        count,
-    }
+function choices(parent, args, context) {
+    return context.prisma.choices();
+}
+
+function choice(parent, args, context) {
+    return context.prisma.choice({ id: args.id })
 }
 
 module.exports = {
-    feed,
+    choices,
+    choice,
 }

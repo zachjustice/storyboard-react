@@ -5,7 +5,7 @@ var typeDefs = require("./prisma-schema").typeDefs;
 
 var models = [
   {
-    name: "Link",
+    name: "Choice",
     embedded: false
   },
   {
@@ -13,7 +13,7 @@ var models = [
     embedded: false
   },
   {
-    name: "Vote",
+    name: "Option",
     embedded: false
   }
 ];

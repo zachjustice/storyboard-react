@@ -1,9 +1,7 @@
-type Link {
-  id: ID! @unique
-  description: String!
-  url: String!
-  postedBy: User
-  votes: [Vote!]!
+type Choice {
+    id: ID! @unique
+    content: String!
+    options: [Option!]! @relation(name: "ChildOptions")
 }
 
 type User {
@@ -11,12 +9,11 @@ type User {
   name: String!
   email: String! @unique
   password: String!
-  links: [Link!]!
-  votes: [Vote!]!
 }
 
-type Vote {
-  id: ID! @unique
-  link: Link!
-  user: User!
+type Option {
+    id: ID! @unique
+    description: String!
+    nextChoice: Choice @relation(name: "NextChoice")
 }
+

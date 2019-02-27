@@ -3,15 +3,9 @@ const jwt = require('jsonwebtoken')
 const {APP_SECRET, getUserId} = require('../utils')
 
 async function signup(parent, args, context, info) {
-    // 1
     const password = await bcrypt.hash(args.password, 10)
-    // 2
     const user = await context.prisma.createUser({...args, password})
-
-    // 3
     const token = jwt.sign({userId: user.id}, APP_SECRET)
-
-    // 4
     return {
         token,
         user,
@@ -19,57 +13,50 @@ async function signup(parent, args, context, info) {
 }
 
 async function login(parent, args, context, info) {
-    // 1
     const user = await context.prisma.user({email: args.email})
     if (!user) {
         throw new Error('No such user found')
     }
 
-    // 2
     const valid = await bcrypt.compare(args.password, user.password)
     if (!valid) {
         throw new Error('Invalid password')
     }
 
     const token = jwt.sign({userId: user.id}, APP_SECRET)
-
-    // 3
     return {
         token,
         user,
     }
 }
 
-function post(parent, args, context, info) {
+function createChoice(parent, args, context, info) {
     const userId = getUserId(context)
-    return context.prisma.createLink({
-        url: args.url,
-        description: args.description,
-        postedBy: { connect: { id: userId } },
+    return context.prisma.createChoice({
+        content: args.content,
+        // postedBy: { connect: { id: userId } },
     })
 }
 
-async function vote(parent, args, context, info) {
-    const userId = getUserId(context)
+async function createOption(parent, args, context, info) {
+    // const userId = getUserId(context)
 
-    const linkExists = await context.prisma.$exists.vote({
-        user: { id: userId },
-        link: { id: args.linkId },
+    const option = await context.prisma.createOption({
+        // user: { connect: { id: userId } },
+        description: args.description,
     })
 
-    if (linkExists) {
-        throw new Error(`Already voted for link: ${args.linkId}`)
-    }
-
-    return context.prisma.createVote({
-        user: { connect: { id: userId } },
-        link: { connect: { id: args.linkId } },
+    await context.prisma.updateChoice({
+        data: { options: { connect: { id: option.id } } },
+        where: { id: args.parentChoiceId },
     })
+
+    return option
 }
 
 module.exports = {
     signup,
     login,
-    post,
-    vote,
+    createChoice,
+    createOption,
 }
