@@ -6,6 +6,12 @@ type Query {
 type Mutation {
     createChoice(content: String!): Choice!
     createOption(parentChoiceId: String!, description: String!): Option!
+
+    updateChoice(id: String!, content: String, nextOptionId: String): Choice!
+    updateOption(id: String!, description: String, parentChoiceId: String, nextChoiceId: String): Option!
+
+    deleteChoice(id: String!): Choice!
+    deleteOption(id: String!): Option!
     # user signup, login
     signup(email: String!, password: String!, name: String!): AuthPayload
     login(email: String!, password: String!): AuthPayload

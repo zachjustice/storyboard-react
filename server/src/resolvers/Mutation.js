@@ -54,9 +54,64 @@ async function createOption(parent, args, context, info) {
     return option
 }
 
+async function updateChoice(parent, args, context, info) {
+    const updateChoiceData = {};
+
+    if (args.content) {
+        updateChoiceData.content = args.content
+    }
+
+    if (args.nextOptionId) {
+        updateChoiceData.options = { connect: { id: args.nextOptionId } }
+    }
+
+    return await context.prisma.updateChoice({
+        data: updateChoiceData,
+        where: { id: args.id } ,
+    });
+}
+
+async function updateOption(parent, args, context, info) {
+    const updateOptionData = {};
+
+    if (args.description) {
+        updateOptionData.description = args.description
+    }
+
+    if (args.nextChoiceId) {
+        updateOptionData.nextChoice = { connect: { id: args.nextChoiceId } }
+    }
+
+    const option = await context.prisma.updateOption({
+        data: updateOptionData,
+        where: { id: args.id },
+    });
+
+    if (args.parentChoiceId) {
+        await context.prisma.updateChoice({
+            data: { options: { connect: { id: option.id } } },
+            where: { id: args.parentChoiceId },
+        })
+    }
+
+    return option;
+}
+
+function deleteChoice(parent, args, context, info) {
+   return context.prisma.deleteChoice({ id: args.id })
+}
+
+function deleteOption(parent, args, context, info) {
+    return context.prisma.deleteOption({ id: args.id })
+}
+
 module.exports = {
     signup,
     login,
     createChoice,
     createOption,
+    updateChoice,
+    updateOption,
+    deleteChoice,
+    deleteOption,
 }
