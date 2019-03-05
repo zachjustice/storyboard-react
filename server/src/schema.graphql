@@ -4,7 +4,7 @@ type Query {
 }
 
 type Mutation {
-    createChoice(content: String!): Choice!
+    createChoice(content: String!,  parentOptionId: String): Choice!
     createOption(parentChoiceId: String!, description: String!): Option!
 
     updateChoice(id: String!, content: String, nextOptionId: String): Choice!

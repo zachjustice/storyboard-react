@@ -30,12 +30,19 @@ async function login(parent, args, context, info) {
     }
 }
 
-function createChoice(parent, args, context, info) {
+async function createChoice(parent, args, context, info) {
     const userId = getUserId(context)
-    return context.prisma.createChoice({
+    const choice = await context.prisma.createChoice({
         content: args.content,
         // postedBy: { connect: { id: userId } },
     })
+
+    await context.prisma.updateOption({
+        data: { nextChoice: { connect: { id: choice.id } } },
+        where: { id: args.parentOptionId },
+    })
+
+    return choice;
 }
 
 async function createOption(parent, args, context, info) {
