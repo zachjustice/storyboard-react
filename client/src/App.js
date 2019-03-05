@@ -25,6 +25,7 @@ class App extends Component {
     choicesService = new ChoicesService();
     state = { choices: [ cloneDeep(this.choicesService.getChoice(INITIAL_CHOICE_ID)) ] };
 
+
     choose = (parentChoice, selectedOption, index) => {
         this.setState((state) => {
             (parentChoice.options || []).forEach(option => {
@@ -110,6 +111,7 @@ class App extends Component {
     }
 
     render() {
+        console.log(this.state.choices);
         return (
             <div className="App margin-left-1 margin-top-1">
                 <Storyboard choices={this.state.choices} onClick={this.choose}/>

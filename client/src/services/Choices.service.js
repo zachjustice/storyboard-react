@@ -1,44 +1,49 @@
-export const INITIAL_CHOICE_ID = 1;
+import {client} from './GraphQLClient';
+import gql from 'graphql-tag'
+
+export const INITIAL_CHOICE_ID = "cjsv4z9uxo0vg0b794bjfwjvu";
+
 
 export class ChoicesService {
     choiceId = INITIAL_CHOICE_ID;
     choices = [];
 
-    getChoice(choiceId) {
-        let selectedChoice = this.choices.find(choice => choice.id === choiceId);
-
-        if (!selectedChoice) {
-            selectedChoice = this.fetchChoice(choiceId);
-        }
-
-        return selectedChoice;
-    }
-
-    fetchChoice(choiceId) {
-        const newChoice = this.createNewChoice(choiceId);
-        this.choices.push(newChoice);
-        return newChoice;
+    async getChoice(choiceId) {
+        console.log("getChoice", choiceId)
+        return await client({
+            query: gql`query {
+                choice(id:"cjsv4z9uxo0vg0b794bjfwjvu") {
+                id,
+                content,
+                options {
+                  id,
+                  description,
+                  nextChoice {
+                    id
+                  }
+                }
+              }
+}`
+        })
     }
 
     createNewChoice(choiceId) {
         return {
             id: choiceId,
             content: randomWords(10, 20),
-            options: Array(randomInt(2,5)).fill(null).map(() => this.createNewOption())
+            options: Array(randomInt(2, 5)).fill(null).map(() => this.createNewOption())
         };
     }
 
     createNewOption() {
         return {
-            id: randomInt(0, 1000000000),
-            description: randomWords(3, 7),
-            next: ++this.choiceId
+            description: randomWords(3, 7)
         }
     }
 }
 
 function randomInt(min, max) {
-    return ( Math.random() * ( max - min ) + min ) >> 0
+    return (Math.random() * (max - min) + min) >> 0
 }
 
 function randomWords(min, max) {
