@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 import {Storyboard} from './components/Storyboard';
-import {ChoicesService, INITIAL_CHOICE_ID} from './services/Choices.service';
+import {getChoice, INITIAL_CHOICE_ID} from './services/Choices.service';
 import {cloneDeep} from 'lodash';
 
 const keys = {
@@ -22,20 +22,24 @@ const keys = {
 };
 
 class App extends Component {
-    choicesService = new ChoicesService();
-    state = { choices: [ cloneDeep(this.choicesService.getChoice(INITIAL_CHOICE_ID)) ] };
+    choose = async (parentChoice, selectedOption, index) => {
+        let nextChoice;
+        if (selectedOption.nextChoice && selectedOption.nextChoice.id) {
+            const nextChoiceId = selectedOption.nextChoice.id;
+            nextChoice = await getChoice(nextChoiceId);
+        }
 
+        (parentChoice.options || []).forEach(option => {
+            option.isSelected = option.id === selectedOption.id;
+        });
 
-    choose = (parentChoice, selectedOption, index) => {
+        console.log('choose', selectedOption);
         this.setState((state) => {
-            (parentChoice.options || []).forEach(option => {
-                option.isSelected = option.id === selectedOption.id;
-            });
+            let choices = state.choices.slice(0, index + 1);
+            choices = (!nextChoice) ? choices : choices
+                .concat(nextChoice);
 
-            const choices = state.choices
-                .slice(0, index + 1)
-                .concat(cloneDeep(this.choicesService.getChoice(selectedOption.next)));
-
+            console.log('choices', choices);
             return {
                 selectedOption: undefined,
                 choices,
@@ -49,8 +53,8 @@ class App extends Component {
         let availableOptions = (lastChoice.options || []);
 
         let currOptionIndex = this.state.selectedOption === undefined
-                                    ? -1
-                                    : this.state.selectedOption ;
+            ? -1
+            : this.state.selectedOption;
 
         switch (event.keyCode) {
             case keys.up:
@@ -65,7 +69,7 @@ class App extends Component {
                 break;
             case keys.backspace:
                 if (this.state.choices.length > 1) {
-                    this.setState({ choices: this.state.choices.splice(0, this.state.choices.length - 1) });
+                    this.setState({choices: this.state.choices.splice(0, this.state.choices.length - 1)});
                 }
                 break;
             case keys.one:
@@ -102,19 +106,26 @@ class App extends Component {
         console.log(`currOptionIndex ${currOptionIndex}`);
     };
 
-    componentWillMount() {
+    async componentWillMount() {
         document.addEventListener('keydown', this.onKeyDown);
+
+        const firstChoice = await getChoice(INITIAL_CHOICE_ID);
+        this.setState({choices: [firstChoice]})
     }
 
     componentDidUpdate() {
         window.scrollTo(0, document.body.scrollHeight);
     }
 
+
     render() {
-        console.log(this.state.choices);
+        if (!this.state || !this.state.choices) return 'Fetching...';
+        if (this.state && this.state.error) return 'Error!';
+
+        console.log('App.render', this.state.choices)
         return (
             <div className="App margin-left-1 margin-top-1">
-                <Storyboard choices={this.state.choices} onClick={this.choose}/>
+                <Storyboard choices={this.state.choices} onClick={async (parentChoice, selectedOption, index) => await this.choose(parentChoice, selectedOption, index)}/>
             </div>
         );
     }
