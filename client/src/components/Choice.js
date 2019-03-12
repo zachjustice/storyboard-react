@@ -11,7 +11,7 @@ export function Choice(props) {
                     <span className='bold caret'> > </span>
                 </div>
                 <div>
-                    <span className='bold dir'> ~ </span>
+                    <span className='bold dir margin-right-0_5'> ~ </span>
                 </div>
                 <div className='choice-content'>
                     {choice.content}

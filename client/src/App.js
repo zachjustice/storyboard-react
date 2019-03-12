@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 import {Storyboard} from './components/Storyboard';
+import {NewChoice} from './components/NewChoice';
 import {getChoice, INITIAL_CHOICE_ID} from './services/Choices.service';
 import {cloneDeep} from 'lodash';
 
@@ -23,26 +24,45 @@ const keys = {
 
 class App extends Component {
     choose = async (parentChoice, selectedOption, index) => {
+        // update the highlight option
+        (parentChoice.options || []).forEach(option => {
+            option.isSelected = option.id === selectedOption.id;
+        });
+
+        // while we fetch the next choice, update the loading prompt
+        this.setState((state) =>{
+            // if we are click an old option, get rid of all the choices after the newly selected current one
+            let choices = state.choices.slice(0, index + 1);
+            return {
+                loading: true,
+                createNewChoice: false,
+                choices,
+            }
+        });
+
+        // get the next choice if its available
         let nextChoice;
         if (selectedOption.nextChoice && selectedOption.nextChoice.id) {
             const nextChoiceId = selectedOption.nextChoice.id;
             nextChoice = await getChoice(nextChoiceId);
         }
 
-        (parentChoice.options || []).forEach(option => {
-            option.isSelected = option.id === selectedOption.id;
-        });
-
         console.log('choose', selectedOption);
         this.setState((state) => {
-            let choices = state.choices.slice(0, index + 1);
-            choices = (!nextChoice) ? choices : choices
-                .concat(nextChoice);
+            let choices = state.choices;
+            let createNewChoice = false;
+            if (nextChoice) {
+                choices = choices.concat(nextChoice);
+            } else {
+                createNewChoice = true;
+            }
 
             console.log('choices', choices);
             return {
+                loading: false,
                 selectedOption: undefined,
                 choices,
+                createNewChoice,
             }
         });
     };
@@ -126,6 +146,8 @@ class App extends Component {
         return (
             <div className="App margin-left-1 margin-top-1">
                 <Storyboard choices={this.state.choices} onClick={async (parentChoice, selectedOption, index) => await this.choose(parentChoice, selectedOption, index)}/>
+                { (this.state.createNewChoice) ? <NewChoice /> : null }
+                { (this.state.loading) ? '...' : null }
             </div>
         );
     }

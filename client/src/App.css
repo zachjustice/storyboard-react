@@ -5,6 +5,16 @@ body {
   font-family: Courier, monospace;
 }
 
+::-moz-placeholder {
+  color: gray;
+  font-style: italic;
+}
+
+::-webkit-input-placeholder {
+  color: gray;
+  font-style: italic;
+}
+
 /* components */
 
 .storyboard {
@@ -20,9 +30,21 @@ body {
   color: cyan;
 }
 
+.new-choice {
+  border: none;
+  background: none;
+  font-size: inherit;
+  font-family: Courier, monospace;
+  max-width: 300px;
+}
+
+.new-choice:focus {
+  color: white;
+  font-style: unset;
+}
+
 .choice-content {
   /*color: #00ff00;*/
-  margin-left: .5rem;
 }
 
 .option-list {
@@ -58,4 +80,8 @@ body {
 
 .margin-top-1 {
   margin-top: 1rem;
+}
+
+.margin-right-0_5 {
+  margin-right: 0.5rem;
 }
