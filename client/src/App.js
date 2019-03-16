@@ -5,6 +5,7 @@ import {NewChoice} from './components/NewChoice';
 import {getChoice, INITIAL_CHOICE_ID} from './services/Choices.service';
 import {cloneDeep} from 'lodash';
 import {createChoice} from "./services/Choices.service";
+import {createOption} from "./services/Choices.service";
 
 const keys = {
     backspace: 8,
@@ -30,7 +31,9 @@ class App extends Component {
 
         return (
             <div className="App margin-left-1 margin-top-1">
-                <Storyboard choices={this.state.choices} onClick={async (parentChoice, selectedOption, index) => await this.choose(parentChoice, selectedOption, index)}/>
+                <Storyboard choices={this.state.choices}
+                            onClick={async (parentChoice, selectedOption, index) => await this.choose(parentChoice, selectedOption, index)}
+                            createOption={this.createOption}/>
                 { (this.state.createNewChoice) ? <NewChoice parentOption={this.getParentOption()} createChoice={this.createChoice}/> : null }
                 { (this.state.loading) ? '...' : null }
             </div>
@@ -160,6 +163,13 @@ class App extends Component {
             choices: this.state.choices.concat(choice),
         });
     };
+
+    createOption = (parentChoice, optionDescription) => {
+        console.log(parentChoice, optionDescription);
+        const option = createOption(parentChoice.id, optionDescription);
+        // todo make functional
+        this.state.choices.find(c => parentChoice.id === c.id).options.concat(option);
+    }
 }
 
 function updateSelectedOption(options, selectedOptionIndex) {

@@ -20,7 +20,7 @@ export class NewChoice extends React.Component {
                         <span className='bold dir margin-right-0_5'> ~ </span>
                     </div>
                     <input className='new-choice'
-                           placeholder='Continue the story...'
+                           placeholder="What's next...?"
                            onChange={evt => this.onChange(evt)}>
                     </input>
                 </div>

@@ -4,7 +4,10 @@ import {Option} from "./Option";
 export class Choice extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {choice: props.choice || {}}
+        this.state = {
+            choice: props.choice || {},
+            optionDescription: '',
+        }
     }
 
     render() {
@@ -26,14 +29,17 @@ export class Choice extends React.Component {
                     {(this.state.choice.options || []).map(option => (
                         <Option value={option}
                                 key={'option-' + option.id}
-                                onClick={props.onClick}/>
+                                onClick={this.props.onClick}/>
                     ))}
-                    {this.state.choice.options.length < 3 && (
+                    {(!this.state.choice.options || this.state.choice.options.length < 3) && (
                         <li>
                             <input className='new-option'
-                                   placeholder="What's next...?"
+                                   placeholder="Continue the story..."
                                    onChange={evt => this.onChange(evt)}>
                             </input>
+                            <br />
+                            <br />
+                            <span onClick={() => this.props.createOption(this.state.choice, this.state.optionDescription)}>Submit</span>
                         </li>
                     )}
                 </ol>
@@ -41,5 +47,11 @@ export class Choice extends React.Component {
         );
     }
 
+    onChange = (evt) => {
+        this.setState({
+            ...this.state,
+            optionDescription: evt.target.value
+        });
+    }
 }
 

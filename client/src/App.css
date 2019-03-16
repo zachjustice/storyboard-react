@@ -30,7 +30,7 @@ body {
   color: cyan;
 }
 
-.new-choice {
+input {
   border: none;
   background: none;
   font-size: inherit;
@@ -38,7 +38,7 @@ body {
   max-width: 300px;
 }
 
-.new-choice:focus {
+input:focus {
   color: white;
   font-style: unset;
 }

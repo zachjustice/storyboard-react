@@ -1,6 +1,7 @@
 import {client} from './GraphQLClient';
 import gql from 'graphql-tag'
 
+
 export const INITIAL_CHOICE_ID = "cjsv4z9uxo0vg0b794bjfwjvu";
 
 export async function createChoice(parentOptionId, content) {
@@ -18,8 +19,32 @@ export async function createChoice(parentOptionId, content) {
                     description
                 }
             }
-        }`}).then(response => {
-        console.log("got choice", response.data.choice);
+        }`
+    }).then(response => {
+        console.log("created choice", response.data.choice);
+        return response.data.choice;
+    })
+    .catch(console.log)
+}
+
+export async function createOption(parentChoiceId, optionDescription) {
+    return await client.mutate({
+        variables: {
+            parentChoiceId,
+            optionDescription
+        },
+        mutation: gql`mutation createOption($parentChoiceId: String!, $optionDescription: String!) {
+            createOption(parentChoiceId: $parentChoiceId, description: $optionDescription) {
+                id,
+                description,
+                nextChoice {
+                    id,
+                    content
+                }
+            }
+        }`
+    }).then(response => {
+        console.log("created option", response.data.choice);
         return response.data.choice;
     })
     .catch(console.log)
@@ -27,19 +52,21 @@ export async function createChoice(parentOptionId, content) {
 
 export async function getChoice(choiceId) {
     console.log('getChoice', choiceId);
-    return await client.query({query: gql`{
-        choice(id: "${choiceId}") {
-            id
-            content
-            options {
+    return await client.query({
+        query: gql`{
+            choice(id: "${choiceId}") {
                 id
-                description
-                nextChoice {
+                content
+                options {
                     id
+                    description
+                    nextChoice {
+                        id
+                    }
                 }
             }
-        }
-    }`}).then(response => {
+        }`
+    }).then(response => {
         console.log("got choice", response.data.choice)
         return response.data.choice;
     })
