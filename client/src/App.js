@@ -24,6 +24,30 @@ const keys = {
 };
 
 class App extends Component {
+    render() {
+        if (!this.state || !this.state.choices) return 'Fetching...';
+        if (this.state && this.state.error) return 'Error!';
+
+        return (
+            <div className="App margin-left-1 margin-top-1">
+                <Storyboard choices={this.state.choices} onClick={async (parentChoice, selectedOption, index) => await this.choose(parentChoice, selectedOption, index)}/>
+                { (this.state.createNewChoice) ? <NewChoice parentOption={this.getParentOption()} createChoice={this.createChoice}/> : null }
+                { (this.state.loading) ? '...' : null }
+            </div>
+        );
+    }
+
+    async componentWillMount() {
+        document.addEventListener('keydown', this.onKeyDown);
+
+        const firstChoice = await getChoice(INITIAL_CHOICE_ID);
+        this.setState({choices: [firstChoice]})
+    }
+
+    componentDidUpdate() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
     choose = async (parentChoice, selectedOption, index) => {
         // update the highlight option
         (parentChoice.options || []).forEach(option => {
@@ -122,33 +146,7 @@ class App extends Component {
         if (currOptionIndex > -1) {
             this.setState({selectedOption: currOptionIndex});
         }
-        console.log(`currOptionIndex ${currOptionIndex}`);
     };
-
-    async componentWillMount() {
-        document.addEventListener('keydown', this.onKeyDown);
-
-        const firstChoice = await getChoice(INITIAL_CHOICE_ID);
-        this.setState({choices: [firstChoice]})
-    }
-
-    componentDidUpdate() {
-        window.scrollTo(0, document.body.scrollHeight);
-    }
-
-
-    render() {
-        if (!this.state || !this.state.choices) return 'Fetching...';
-        if (this.state && this.state.error) return 'Error!';
-
-        return (
-            <div className="App margin-left-1 margin-top-1">
-                <Storyboard choices={this.state.choices} onClick={async (parentChoice, selectedOption, index) => await this.choose(parentChoice, selectedOption, index)}/>
-                { (this.state.createNewChoice) ? <NewChoice parentOption={this.getParentOption()} createChoice={this.createChoice}/> : null }
-                { (this.state.loading) ? '...' : null }
-            </div>
-        );
-    }
 
     getParentOption() {
         return this.state.choices.flatMap(choice => choice.options).find(option => option.isSelected);

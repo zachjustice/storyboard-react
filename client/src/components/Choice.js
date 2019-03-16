@@ -1,31 +1,45 @@
 import React from 'react';
 import {Option} from "./Option";
 
-export function Choice(props) {
-    const choice = props.choice || {};
+export class Choice extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {choice: props.choice || {}}
+    }
 
-    return (
-        <div className='choice'>
-            <div className='flex-container'>
-                <div>
-                    <span className='bold caret'> > </span>
+    render() {
+        return (
+            <div className='choice'>
+                <div className='flex-container'>
+                    <div>
+                        <span className='bold caret'> > </span>
+                    </div>
+                    <div>
+                        <span className='bold dir margin-right-0_5'> ~ </span>
+                    </div>
+                    <div className='choice-content'>
+                        {this.state.choice.content}
+                    </div>
                 </div>
-                <div>
-                    <span className='bold dir margin-right-0_5'> ~ </span>
-                </div>
-                <div className='choice-content'>
-                    {choice.content}
-                </div>
+
+                <ol className='option-list'>
+                    {(this.state.choice.options || []).map(option => (
+                        <Option value={option}
+                                key={'option-' + option.id}
+                                onClick={props.onClick}/>
+                    ))}
+                    {this.state.choice.options.length < 3 && (
+                        <li>
+                            <input className='new-option'
+                                   placeholder="What's next...?"
+                                   onChange={evt => this.onChange(evt)}>
+                            </input>
+                        </li>
+                    )}
+                </ol>
             </div>
+        );
+    }
 
-            <ol className='option-list'>
-                {(choice.options || []).map(option => (
-                    <Option value={option}
-                            key={'option-' + option.id}
-                            onClick={props.onClick} />
-                ))}
-            </ol>
-        </div>
-    );
 }
 
