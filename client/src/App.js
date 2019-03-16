@@ -34,8 +34,10 @@ class App extends Component {
                 <Storyboard choices={this.state.choices}
                             onClick={async (parentChoice, selectedOption, index) => await this.choose(parentChoice, selectedOption, index)}
                             createOption={this.createOption}/>
-                { (this.state.createNewChoice) ? <NewChoice parentOption={this.getParentOption()} createChoice={this.createChoice}/> : null }
-                { (this.state.loading) ? '...' : null }
+                {this.state.createNewChoice && (
+                    <NewChoice parentOption={this.getParentOption()} createChoice={this.createChoice}/>
+                )}
+                {this.state.loading && '...'}
             </div>
         );
     }
@@ -58,7 +60,7 @@ class App extends Component {
         });
 
         // while we fetch the next choice, update the loading prompt
-        this.setState((state) =>{
+        this.setState((state) => {
             // if we are click an old option, get rid of all the choices after the newly selected current one
             let choices = state.choices.slice(0, index + 1);
             return {
@@ -113,11 +115,12 @@ class App extends Component {
                 lastChoice.options = updateSelectedOption(availableOptions, currOptionIndex);
                 event.preventDefault();
                 break;
-            case keys.backspace:
-                if (this.state.choices.length > 1) {
-                    this.setState({choices: this.state.choices.splice(0, this.state.choices.length - 1)});
-                }
-                break;
+            // todo backspace handling breaks typing
+            // case keys.backspace:
+            // if (this.state.choices.length > 1) {
+            //     this.setState({choices: this.state.choices.splice(0, this.state.choices.length - 1)});
+            // }
+            // break;
             case keys.one:
             case keys.two:
             case keys.three:
@@ -155,20 +158,39 @@ class App extends Component {
         return this.state.choices.flatMap(choice => choice.options).find(option => option.isSelected);
     }
 
-    createChoice = (parentOptionId, choiceContent) => {
-        const choice = createChoice(parentOptionId, choiceContent);
-        this.setState({
-            ...this.state,
-            createNewChoice: false,
-            choices: this.state.choices.concat(choice),
+    createChoice = async (parentOptionId, choiceContent) => {
+        this.setState((state) => {
+            return {
+                ...state,
+                loading: true,
+                createNewChoice: false,
+            };
+        });
+
+        const choice = await createChoice(parentOptionId, choiceContent);
+        this.setState((state) => {
+            return {
+                ...state,
+                loading: false,
+                createNewChoice: false,
+                choices: state.choices.concat(choice),
+            }
         });
     };
 
-    createOption = (parentChoice, optionDescription) => {
+    createOption = async (parentChoice, optionDescription) => {
         console.log(parentChoice, optionDescription);
-        const option = createOption(parentChoice.id, optionDescription);
-        // todo make functional
-        this.state.choices.find(c => parentChoice.id === c.id).options.concat(option);
+        const option = await createOption(parentChoice.id, optionDescription);
+
+        this.setState((state) => {
+            const choices = cloneDeep(state.choices);
+            choices.find(c => parentChoice.id === c.id).options.concat(option);
+
+            return {
+                ...state,
+                choices,
+            }
+        });
     }
 }
 

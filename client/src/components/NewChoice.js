@@ -25,10 +25,13 @@ export class NewChoice extends React.Component {
                     </input>
                 </div>
 
-                <ol>
-                    <li onClick={() => this.submit()}>Submit</li>
-                    <li>Discard</li>
-                </ol>
+                {this.state.choiceContent && (
+                    <ol>
+                        <span className="clickable" onClick={() => this.props.createChoice(this.state.parentOption.id, this.state.choiceContent)}>
+                            Submit
+                        </span>
+                    </ol>
+                )}
             </div>
         )
     }

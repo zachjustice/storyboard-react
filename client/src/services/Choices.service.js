@@ -21,8 +21,8 @@ export async function createChoice(parentOptionId, content) {
             }
         }`
     }).then(response => {
-        console.log("created choice", response.data.choice);
-        return response.data.choice;
+        console.log("created choice", response.data);
+        return response.data.createChoice;
     })
     .catch(console.log)
 }

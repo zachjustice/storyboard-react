@@ -32,18 +32,18 @@ export class Choice extends React.Component {
                                 onClick={this.props.onClick}/>
                     ))}
                     {(!this.state.choice.options || this.state.choice.options.length < 3) && (
-                        <div>
-                            <li>
-                                <input className='new-option'
-                                       placeholder="Continue the story..."
-                                       onChange={evt => this.onChange(evt)}>
-                                </input>
-                            </li>
-                            <span className="clickable"
-                                onClick={() => this.props.createOption(this.state.choice, this.state.optionDescription)}>
-                                Submit
-                            </span>
-                        </div>
+                        <li>
+                            <input className='new-option'
+                                   placeholder="Continue the story..."
+                                   onChange={evt => this.onChange(evt)}>
+                            </input>
+                        </li>
+                    )}
+                    {(this.state.optionDescription &&
+                        <span className="clickable"
+                              onClick={() => this.props.createOption(this.state.choice, this.state.optionDescription)}>
+                            Submit
+                        </span>
                     )}
                 </ol>
             </div>
