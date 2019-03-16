@@ -43,6 +43,11 @@ input:focus {
   font-style: unset;
 }
 
+.clickable:hover {
+  color: cyan;
+  cursor: pointer;
+}
+
 .choice-content {
   /*color: #00ff00;*/
 }

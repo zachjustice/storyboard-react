@@ -2,7 +2,7 @@ import React from 'react';
 
 export function Option(props) {
     const option = props.value || {};
-    let spanClass = 'OptionText';
+    let spanClass = 'OptionText clickable';
     if (option.isSelected) {
         spanClass += ' is-selected bold';
     }
