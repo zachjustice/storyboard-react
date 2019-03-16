@@ -4,6 +4,7 @@ import {Storyboard} from './components/Storyboard';
 import {NewChoice} from './components/NewChoice';
 import {getChoice, INITIAL_CHOICE_ID} from './services/Choices.service';
 import {cloneDeep} from 'lodash';
+import {createChoice} from "./services/Choices.service";
 
 const keys = {
     backspace: 8,
@@ -47,7 +48,6 @@ class App extends Component {
             nextChoice = await getChoice(nextChoiceId);
         }
 
-        console.log('choose', selectedOption);
         this.setState((state) => {
             let choices = state.choices;
             let createNewChoice = false;
@@ -57,7 +57,6 @@ class App extends Component {
                 createNewChoice = true;
             }
 
-            console.log('choices', choices);
             return {
                 loading: false,
                 selectedOption: undefined,
@@ -142,15 +141,27 @@ class App extends Component {
         if (!this.state || !this.state.choices) return 'Fetching...';
         if (this.state && this.state.error) return 'Error!';
 
-        console.log('App.render', this.state.choices)
         return (
             <div className="App margin-left-1 margin-top-1">
                 <Storyboard choices={this.state.choices} onClick={async (parentChoice, selectedOption, index) => await this.choose(parentChoice, selectedOption, index)}/>
-                { (this.state.createNewChoice) ? <NewChoice /> : null }
+                { (this.state.createNewChoice) ? <NewChoice parentOption={this.getParentOption()} createChoice={this.createChoice}/> : null }
                 { (this.state.loading) ? '...' : null }
             </div>
         );
     }
+
+    getParentOption() {
+        return this.state.choices.flatMap(choice => choice.options).find(option => option.isSelected);
+    }
+
+    createChoice = (parentOptionId, choiceContent) => {
+        const choice = createChoice(parentOptionId, choiceContent);
+        this.setState({
+            ...this.state,
+            createNewChoice: false,
+            choices: this.state.choices.concat(choice),
+        });
+    };
 }
 
 function updateSelectedOption(options, selectedOptionIndex) {
