@@ -1,5 +1,6 @@
 import React from 'react';
 import {Option} from "./Option";
+import {cloneDeep} from 'lodash';
 
 export class Choice extends React.Component {
     constructor(props) {
@@ -35,20 +36,46 @@ export class Choice extends React.Component {
                         <li>
                             <input className='new-option'
                                    placeholder="Continue the story..."
+                                   value={this.state.optionDescription}
                                    onChange={evt => this.onChange(evt)}>
                             </input>
                         </li>
                     )}
-                    {(this.state.optionDescription &&
+                    {(this.state.optionDescription && !this.state.submittingNewOption &&
                         <span className="clickable"
-                              onClick={() => this.props.createOption(this.state.choice, this.state.optionDescription)}>
+                              onClick={() => this.createOption()}>
                             Submit
                         </span>
+                    )}
+                    {(this.state.optionDescription && this.state.submittingNewOption &&
+                        <span>...</span>
                     )}
                 </ol>
             </div>
         );
     }
+
+    createOption = async () => {
+        this.setState((state) => {
+            return {
+                ...state,
+                submittingNewOption: true,
+            }
+        });
+
+        const option = await this.props.createOption(this.state.choice, this.state.optionDescription);
+        const choice = cloneDeep(this.state.choice);
+        choice.options = this.state.choice.options.concat(option);
+
+        this.setState((state) => {
+            return {
+                ...state,
+                choice,
+                optionDescription: '',
+                submittingNewOption: false,
+            }
+        })
+    };
 
     onChange = (evt) => {
         this.setState({

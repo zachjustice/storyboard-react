@@ -43,7 +43,7 @@ class App extends Component {
     }
 
     async componentWillMount() {
-        document.addEventListener('keydown', this.onKeyDown);
+        // document.addEventListener('keydown', this.onKeyDown);
 
         const firstChoice = await getChoice(INITIAL_CHOICE_ID);
         this.setState({choices: [firstChoice]})
@@ -184,13 +184,17 @@ class App extends Component {
 
         this.setState((state) => {
             const choices = cloneDeep(state.choices);
-            choices.find(c => parentChoice.id === c.id).options.concat(option);
+            const choice = choices.find(c => parentChoice.id === c.id);
+            choice.options = choice.options.concat(option);
+            console.log('choices with new option', choices);
 
             return {
                 ...state,
                 choices,
             }
         });
+
+        return option;
     }
 }
 

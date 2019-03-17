@@ -36,10 +36,10 @@ input {
   font-size: inherit;
   font-family: Courier, monospace;
   max-width: 300px;
+  color: white;
 }
 
 input:focus {
-  color: white;
   font-style: unset;
 }
 

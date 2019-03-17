@@ -44,8 +44,8 @@ export async function createOption(parentChoiceId, optionDescription) {
             }
         }`
     }).then(response => {
-        console.log("created option", response.data.choice);
-        return response.data.choice;
+        console.log("created option", response.data);
+        return response.data.createOption;
     })
     .catch(console.log)
 }
