@@ -21,7 +21,6 @@ export async function createChoice(parentOptionId, content) {
             }
         }`
     }).then(response => {
-        console.log("created choice", response.data);
         return response.data.createChoice;
     })
     .catch(console.log)
@@ -44,14 +43,13 @@ export async function createOption(parentChoiceId, optionDescription) {
             }
         }`
     }).then(response => {
-        console.log("created option", response.data);
+        console.log("createOption", response.data);
         return response.data.createOption;
     })
     .catch(console.log)
 }
 
 export async function getChoice(choiceId) {
-    console.log('getChoice', choiceId);
     return await client.query({
         query: gql`{
             choice(id: "${choiceId}") {
@@ -67,7 +65,7 @@ export async function getChoice(choiceId) {
             }
         }`
     }).then(response => {
-        console.log("got choice", response.data.choice)
+        console.log("getChoice", response.data.choice)
         return response.data.choice;
     })
     .catch(console.log)

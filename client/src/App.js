@@ -64,6 +64,7 @@ class App extends Component {
             // if we are click an old option, get rid of all the choices after the newly selected current one
             let choices = state.choices.slice(0, index + 1);
             return {
+                ...state,
                 loading: true,
                 createNewChoice: false,
                 choices,
@@ -179,14 +180,12 @@ class App extends Component {
     };
 
     createOption = async (parentChoice, optionDescription) => {
-        console.log(parentChoice, optionDescription);
         const option = await createOption(parentChoice.id, optionDescription);
 
         this.setState((state) => {
             const choices = cloneDeep(state.choices);
             const choice = choices.find(c => parentChoice.id === c.id);
             choice.options = choice.options.concat(option);
-            console.log('choices with new option', choices);
 
             return {
                 ...state,
