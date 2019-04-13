@@ -6,7 +6,6 @@ export class Choice extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            choice: props.choice || {},
             optionDescription: '',
         }
     }
@@ -22,17 +21,17 @@ export class Choice extends React.Component {
                         <span className='bold dir margin-right-0_5'> ~ </span>
                     </div>
                     <div className='choice-content'>
-                        {this.state.choice.content}
+                        {this.props.choice.content}
                     </div>
                 </div>
 
                 <ol className='option-list'>
-                    {(this.state.choice.options || []).map(option => (
+                    {(this.props.choice.options || []).map(option => (
                         <Option value={option}
                                 key={'option-' + option.id}
                                 onClick={this.props.onClick}/>
                     ))}
-                    {(!this.state.choice.options || this.state.choice.options.length < 3) && (
+                    {(!this.props.choice.options || this.props.choice.options.length < 3) && (
                         <li>
                             <input className='new-option'
                                    placeholder="Continue the story..."
@@ -58,22 +57,18 @@ export class Choice extends React.Component {
     createOption = async () => {
         this.setState((state) => {
             return {
-                ...state,
+                optionDescription: state.optionDescription,
                 submittingNewOption: true,
             }
         });
 
-        const option = await this.props.createOption(this.state.choice, this.state.optionDescription);
-        const choice = cloneDeep(this.state.choice);
-        choice.options = this.state.choice.options.concat(option);
+        const option = await this.props.createOption(this.props.choice, this.state.optionDescription);
+        const choice = cloneDeep(this.props.choice);
+        choice.options = this.props.choice.options.concat(option);
 
-        this.setState((state) => {
-            return {
-                ...state,
-                choice,
-                optionDescription: '',
-                submittingNewOption: false,
-            }
+        this.setState({
+            optionDescription: '',
+            submittingNewOption: false,
         })
     };
 
@@ -84,4 +79,3 @@ export class Choice extends React.Component {
         });
     }
 }
-

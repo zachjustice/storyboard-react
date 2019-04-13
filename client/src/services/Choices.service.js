@@ -23,7 +23,7 @@ export async function createChoice(parentOptionId, content) {
     }).then(response => {
         return response.data.createChoice;
     })
-    .catch(console.log)
+    .catch(console.error)
 }
 
 export async function createOption(parentChoiceId, optionDescription) {
@@ -43,10 +43,9 @@ export async function createOption(parentChoiceId, optionDescription) {
             }
         }`
     }).then(response => {
-        console.log("createOption", response.data);
         return response.data.createOption;
     })
-    .catch(console.log)
+    .catch(console.error)
 }
 
 export async function getChoice(choiceId) {
@@ -65,8 +64,7 @@ export async function getChoice(choiceId) {
             }
         }`
     }).then(response => {
-        console.log("getChoice", response.data.choice)
         return response.data.choice;
     })
-    .catch(console.log)
+    .catch(console.error)
 }
