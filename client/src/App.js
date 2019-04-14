@@ -10,6 +10,7 @@ import {createOption} from "./services/Choices.service";
 const keys = {
     backspace: 8,
     enter: 13,
+    escape: 27,
     up: 38,
     down: 40,
 
@@ -101,7 +102,11 @@ class App extends Component {
     };
 
     onKeyDown = (event) => {
-        if (document.activeElement.localName === 'input') {
+        const activeElement = document.activeElement;
+        if (activeElement.localName === 'input') {
+            if (event.keyCode === keys.escape) {
+                activeElement.blur();
+            }
             return;
         }
 
