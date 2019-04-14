@@ -124,7 +124,7 @@ class App extends Component {
                 event.preventDefault();
                 break;
             case keys.backspace:
-                if (this.state.choices.length > 1) {
+                if (this.state.choices.length > 1 && !this.state.createNewChoice) {
                     this.setState({choices: this.state.choices.splice(0, this.state.choices.length - 1)});
                 }
                 this.setState((state) => {
@@ -136,7 +136,8 @@ class App extends Component {
                         o.isSelected = false;
                     });
                     return {
-                        choices: state.choices
+                        choices: state.choices,
+                        createNewChoice: false
                     }
                 });
                 break;
