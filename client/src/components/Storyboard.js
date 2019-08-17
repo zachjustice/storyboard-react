@@ -9,7 +9,8 @@ export function Storyboard(props) {
                     <Choice key={'choice-' + choice.id}
                             choice={choice}
                             isCurrentChoice={index === props.choices.length - 1}
-                            onClick={(option) => props.onClick(choice, option, index)}/>
+                            onClick={(option) => props.onClick(choice, option, index)}
+                            createOption={props.createOption}/>
                 )
             })}
         </div>

@@ -1,27 +1,13 @@
 import React from 'react';
-import {createChoice} from '../services/Choices.service';
 
 export class NewChoice extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            ...this.state,
-            choiceContent: '',
-            editing: false,
+            parentOption: props.parentOption,
+            choiceContent: ''
         };
     }
-
-    updateInputValue = (evt) => {
-        this.setState({
-            ...this.state,
-            choiceContent: evt.target.value,
-            editing: true,
-        });
-    };
-
-    submit = async () => {
-        await createChoice(this.state.parentOptionId, this.state.choiceContent)
-    };
 
     render() {
         return (
@@ -34,20 +20,26 @@ export class NewChoice extends React.Component {
                         <span className='bold dir margin-right-0_5'> ~ </span>
                     </div>
                     <input className='new-choice'
-                           placeholder='Continue the story...'
-                           value={this.state.choiceContent}
-                           onChange={this.updateInputValue}
-                           onSubmit={this.submit}
-                    >
+                           placeholder="What's next...?"
+                           onChange={evt => this.onChange(evt)}>
                     </input>
                 </div>
-                {this.state.editing &&
+
+                {this.state.choiceContent && (
                     <ol>
-                        <li onClick={this.submit}>Save</li>
-                        <li>Delete</li>
+                        <span className="clickable" onClick={() => this.props.createChoice(this.state.parentOption.id, this.state.choiceContent)}>
+                            Submit
+                        </span>
                     </ol>
-                }
+                )}
             </div>
         )
+    }
+
+    onChange(evt) {
+        this.setState({
+            ...this.state,
+            choiceContent: evt.target.value
+        });
     }
 }

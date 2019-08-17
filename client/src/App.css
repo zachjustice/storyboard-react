@@ -30,17 +30,22 @@ body {
   color: cyan;
 }
 
-.new-choice {
+input {
   border: none;
   background: none;
   font-size: inherit;
   font-family: Courier, monospace;
   max-width: 300px;
+  color: white;
 }
 
-.new-choice:focus {
-  color: white;
+input:focus {
   font-style: unset;
+}
+
+.clickable:hover {
+  color: cyan;
+  cursor: pointer;
 }
 
 .choice-content {
