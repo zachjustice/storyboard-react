@@ -30,10 +30,11 @@ class App extends Component {
         });
 
         // while we fetch the next choice, update the loading prompt
-        this.setState((state) =>{
+        this.setState((state) => {
             // if we are click an old option, get rid of all the choices after the newly selected current one
             let choices = state.choices.slice(0, index + 1);
             return {
+                ...state,
                 loading: true,
                 createNewChoice: false,
                 choices,
@@ -47,7 +48,6 @@ class App extends Component {
             nextChoice = await getChoice(nextChoiceId);
         }
 
-        console.log('choose', selectedOption);
         this.setState((state) => {
             let choices = state.choices;
             let createNewChoice = false;
@@ -57,18 +57,18 @@ class App extends Component {
                 createNewChoice = true;
             }
 
-            console.log('choices', choices);
             return {
+                ...state,
                 loading: false,
                 selectedOption: undefined,
                 choices,
                 createNewChoice,
+                parentOptionId: selectedOption.id,
             }
         });
     };
 
     onKeyDown = (event) => {
-
         const lastChoice = this.state.choices[this.state.choices.length - 1] || {};
         let availableOptions = (lastChoice.options || []);
 
@@ -89,7 +89,7 @@ class App extends Component {
                 break;
             case keys.backspace:
                 if (this.state.choices.length > 1) {
-                    this.setState({choices: this.state.choices.splice(0, this.state.choices.length - 1)});
+                    this.setState({...this.state, choices: this.state.choices.splice(0, this.state.choices.length - 1)});
                 }
                 break;
             case keys.one:
@@ -121,16 +121,15 @@ class App extends Component {
         }
 
         if (currOptionIndex > -1) {
-            this.setState({selectedOption: currOptionIndex});
+            this.setState({...this.state, selectedOption: currOptionIndex});
         }
-        console.log(`currOptionIndex ${currOptionIndex}`);
     };
 
     async componentWillMount() {
         document.addEventListener('keydown', this.onKeyDown);
 
         const firstChoice = await getChoice(INITIAL_CHOICE_ID);
-        this.setState({choices: [firstChoice]})
+        this.setState({...this.state, choices: [firstChoice]})
     }
 
     componentDidUpdate() {
@@ -142,12 +141,11 @@ class App extends Component {
         if (!this.state || !this.state.choices) return 'Fetching...';
         if (this.state && this.state.error) return 'Error!';
 
-        console.log('App.render', this.state.choices)
         return (
             <div className="App margin-left-1 margin-top-1">
-                <Storyboard choices={this.state.choices} onClick={async (parentChoice, selectedOption, index) => await this.choose(parentChoice, selectedOption, index)}/>
-                { (this.state.createNewChoice) ? <NewChoice /> : null }
-                { (this.state.loading) ? '...' : null }
+                <Storyboard choices={this.state.choices} onClick={this.choose}/>
+                { this.state.createNewChoice && <NewChoice /> }
+                { this.state.loading && '...' }
             </div>
         );
     }

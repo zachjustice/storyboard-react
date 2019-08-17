@@ -5,31 +5,47 @@ export const INITIAL_CHOICE_ID = "cjsv4z9uxo0vg0b794bjfwjvu";
 
 export async function getChoice(choiceId) {
     console.log('getChoice', choiceId);
-    return await client.query({query: gql`{
-        choice(id: "${choiceId}") {
-            id
-            content
-            options {
+    return await client.query({
+        query: gql`{
+            choice(id: "${choiceId}") {
                 id
-                description
-                nextChoice {
+                content
+                options {
                     id
+                    description
+                    nextChoice {
+                        id
+                    }
                 }
             }
-        }
-    }`}).then(response => {
+        }`
+    }).then(response => {
         console.log("got choice", response.data.choice)
         return response.data.choice;
     })
-    .catch(console.log)
+    .catch(console.error)
 }
 
-export function createNewChoice(choiceId) {
-    return {
-    };
+export async function createChoice(parentOptionId, content) {
+    console.log('createChoice', parentOptionId, content);
+    return await client.mutate({
+        variables: {
+            content,
+            parentOptionId
+        },
+        mutation: gql`mutation {
+            createChoice(content: $content, parentOptionId: $parentOptionId) {
+                id,
+                content,
+            }
+        }`
+    }).then(response => {
+        console.log(response);
+        return response.choice
+    })
+    .catch(console.error)
 }
 
 export function createNewOption() {
-    return {
-    }
+    return {}
 }
