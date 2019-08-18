@@ -7,24 +7,6 @@ import {createChoice} from "./services/Choices.service";
 import {createOption} from "./services/Choices.service";
 import {Choice} from "./components/Choice";
 
-const keys = {
-    backspace: 8,
-    enter: 13,
-    escape: 27,
-    up: 38,
-    down: 40,
-
-    one: 49,
-    two: 50,
-    three: 51,
-    four: 52,
-    five: 53,
-    six: 54,
-    seven: 55,
-    eight: 56,
-    nine: 57
-};
-
 class App extends Component {
     render() {
         if (!this.state || !this.state.choices) return 'Fetching...';
@@ -53,8 +35,6 @@ class App extends Component {
     }
 
     async componentWillMount() {
-        document.addEventListener('keydown', this.onKeyDown);
-
         const firstChoice = await getChoice(INITIAL_CHOICE_ID);
         this.setState({choices: [firstChoice]})
     }
@@ -105,87 +85,6 @@ class App extends Component {
                 parentOptionId: selectedOption.id,
             }
         });
-    };
-
-    onKeyDown = async (event) => {
-        const activeElement = document.activeElement;
-        if (activeElement.localName === 'input') {
-            if (event.keyCode === keys.escape) {
-                activeElement.blur();
-            }
-            return;
-        }
-
-        const lastChoice = this.state.choices[this.state.choices.length - 1] || {};
-        let availableOptions = (lastChoice.options || []);
-
-
-        switch (event.keyCode) {
-            case keys.up:
-                // currOptionIndex = Math.max(currOptionIndex - 1, 0);
-                // lastChoice.options = hoverSelectedOption(availableOptions, currOptionIndex);
-                event.preventDefault();
-                break;
-            case keys.down:
-                // currOptionIndex = Math.min(currOptionIndex + 1, availableOptions.length - 1);
-                // lastChoice.options = hoverSelectedOption(availableOptions, currOptionIndex);
-                event.preventDefault();
-                break;
-            case keys.backspace:
-                if (this.state.choices.length > 1 && !this.state.createNewChoice) {
-                    this.setState({
-                        ...this.state,
-                        choices: this.state.choices.splice(0, this.state.choices.length - 1)
-                    });
-                }
-                this.setState((state) => {
-                    state.choices[state.choices.length - 1].options.forEach((o, index) => {
-                        if (o.isSelected) {
-                            // currOptionIndex = index
-                        }
-                        // o.isHovered = o.isSelected;
-                        // o.isSelected = false;
-                    });
-                    return {
-                        choices: state.choices,
-                        createNewChoice: false
-                    }
-                });
-                break;
-            case keys.one:
-            case keys.two:
-            case keys.three:
-            case keys.four:
-            case keys.five:
-            case keys.six:
-            case keys.eight:
-            case keys.nine:
-                if (event.keyCode - keys.one < availableOptions.length) {
-                    // currOptionIndex = event.keyCode - keys.one;
-                } else {
-                    break;
-                }
-            // eslint-disable-next-line no-fallthrough
-            case keys.enter:
-                let currOptionIndex = this.state.selectedOption === undefined
-                    ? -1
-                    : this.state.selectedOption;
-                if (currOptionIndex > -1) {
-                    await this.choose(
-                        lastChoice,
-                        availableOptions[currOptionIndex],
-                        this.state.choices.length - 1
-                    );
-                    return;
-                }
-                break;
-            default:
-                return;
-        }
-
-        // if (currOptionIndex > -1) {
-        //   this.setState({...this.state, selectedOption: currOptionIndex});
-        // }
     };
 
     getParentOption() {

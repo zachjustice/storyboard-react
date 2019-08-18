@@ -3,10 +3,10 @@ import React from 'react';
 export function Option(props) {
     const option = props.value || {};
     let spanClass = 'OptionText clickable';
-    if (option.isHovered) {
+    if (props.isHovered) {
         spanClass += ' is-selected';
     }
-    if (option.isSelected) {
+    if (props.isSelected) {
         spanClass += ' is-selected bold';
     }
 

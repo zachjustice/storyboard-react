@@ -1,7 +1,12 @@
 import React from 'react';
 import {Option} from "./Option";
 import {cloneDeep} from 'lodash';
-import {createChoice} from "../services/Choices.service";
+import {Keys} from '../util/Keys';
+
+const SelectedOptionsStates = {
+    selected: 'selected',
+    hovered: 'hovered'
+};
 
 export class Choice extends React.Component {
     constructor(props) {
@@ -9,27 +14,10 @@ export class Choice extends React.Component {
         this.state = {
             choice: props.choice,
             optionDescription: '',
+            selectedOptionIndex: null,
+            selectedOptionState: SelectedOptionsStates.hovered
         }
     }
-
-    onClick = (option) => {
-        this.setState((state) => {
-            return {
-                ...state,
-                choice: {
-                    ...state.choice,
-                    options: state.choice.options.map(o => {
-                        return {
-                            ...o,
-                            isHovered: false,
-                            isSelected: o.id === option.id
-                        }
-                    })
-                }
-            }
-        });
-        return this.props.onClick(option);
-    };
 
     render() {
         return (
@@ -47,8 +35,10 @@ export class Choice extends React.Component {
                 </div>
 
                 <ol className='option-list'>
-                    {(this.state.choice.options || []).map(option => (
+                    {(this.state.choice.options || []).map((option, index) => (
                         <Option value={option}
+                                isSelected={this.state.selectedOptionIndex === index && this.state.selectedOptionState === SelectedOptionsStates.selected}
+                                isHovered={this.state.selectedOptionIndex === index && this.state.selectedOptionState === SelectedOptionsStates.hovered}
                                 key={'option-' + option.id}
                                 onClick={this.onClick}/>
                     ))}
@@ -75,6 +65,83 @@ export class Choice extends React.Component {
         );
     }
 
+    componentWillMount() {
+        document.addEventListener('keydown', this.onKeyDown);
+    }
+
+    onKeyDown = async (event) => {
+        const activeElement = document.activeElement;
+        if (activeElement.localName === 'input') {
+            if (event.keyCode === Keys.escape) {
+                activeElement.blur();
+            }
+            return;
+        }
+
+
+        switch (event.keyCode) {
+            case Keys.up:
+                this.moveHoveredOption(-1);
+                event.preventDefault();
+                break;
+            case Keys.down:
+                this.moveHoveredOption(1);
+                event.preventDefault();
+                break;
+            case Keys.backspace:
+                /*
+                TODO dispatch event
+                if (this.state.choices.length > 1 && !this.state.createNewChoice) {
+                    this.setState({
+                        ...this.state,
+                        choices: this.state.choices.splice(0, this.state.choices.length - 1)
+                    });
+                }
+                this.setState((state) => {
+                    state.choices[state.choices.length - 1].options.forEach((o, index) => {
+                        if (o.isSelected) {
+                            // currOptionIndex = index
+                        }
+                        // o.isHovered = o.isSelected;
+                        // o.isSelected = false;
+                    });
+                    return {
+                        choices: state.choices,
+                        createNewChoice: false
+                    }
+                });
+                 */
+                break;
+            case Keys.one:
+            case Keys.two:
+            case Keys.three:
+            case Keys.four:
+            case Keys.five:
+            case Keys.six:
+            case Keys.eight:
+            case Keys.nine:
+                let availableOptions = (this.state.choice.options || []);
+                if (event.keyCode - Keys.one < availableOptions.length) {
+                    // currOptionIndex = event.keyCode - Keys.one;
+                    // TODO dispatch event
+                }
+                break;
+            case Keys.enter:
+                // use onclick callback
+                // TODO dispatch event
+                /*
+                await this.choose(
+                    lastChoice,
+                    availableOptions[currOptionIndex],
+                    this.state.choices.length - 1
+                );
+                 */
+                break;
+            default:
+                return;
+        }
+    };
+
     createOption = async () => {
         this.setState((state) => {
             return {
@@ -97,6 +164,38 @@ export class Choice extends React.Component {
         this.setState({
             ...this.state,
             optionDescription: evt.target.value
+        });
+    };
+
+    onClick = (option) => {
+        document.removeEventListener('keydown', this.onKeyDown);
+        this.setState((state) => {
+            return {
+                ...state,
+                selectedOptionIndex: state.choice.options.findIndex(o => o.id === option.id),
+                selectedOptionState: SelectedOptionsStates.selected
+            }
+        });
+        return this.props.onClick(option);
+    };
+
+    moveHoveredOption(delta) {
+        let availableOptions = (this.state.choice.options || []);
+        let currOptionIndex;
+        if (this.state.selectedOptionIndex === null) {
+            currOptionIndex = 0;
+        } else {
+            currOptionIndex = (this.state.selectedOptionIndex + delta) % availableOptions.length;
+        }
+
+        if (currOptionIndex === -1) currOptionIndex = availableOptions.length - 1;
+
+        this.setState((state) => {
+            return {
+                ...state,
+                selectedOptionIndex: currOptionIndex,
+                selectedOptionState: SelectedOptionsStates.hovered
+            }
         });
     }
 }
