@@ -1,14 +1,35 @@
 import React from 'react';
 import {Option} from "./Option";
 import {cloneDeep} from 'lodash';
+import {createChoice} from "../services/Choices.service";
 
 export class Choice extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            choice: props.choice,
             optionDescription: '',
         }
     }
+
+    onClick = (option) => {
+        this.setState((state) => {
+            return {
+                ...state,
+                choice: {
+                    ...state.choice,
+                    options: state.choice.options.map(o => {
+                        return {
+                            ...o,
+                            isHovered: false,
+                            isSelected: o.id === option.id
+                        }
+                    })
+                }
+            }
+        });
+        return this.props.onClick(option);
+    };
 
     render() {
         return (
@@ -21,17 +42,17 @@ export class Choice extends React.Component {
                         <span className='bold dir margin-right-0_5'> ~ </span>
                     </div>
                     <div className='choice-content'>
-                        {this.props.choice.content}
+                        {this.state.choice.content}
                     </div>
                 </div>
 
                 <ol className='option-list'>
-                    {(this.props.choice.options || []).map(option => (
+                    {(this.state.choice.options || []).map(option => (
                         <Option value={option}
                                 key={'option-' + option.id}
-                                onClick={this.props.onClick}/>
+                                onClick={this.onClick}/>
                     ))}
-                    {(!this.props.choice.options || this.props.choice.options.length < 3) && (
+                    {(!this.state.choice.options || this.state.choice.options.length < 3) && (
                         <li>
                             <input className='new-option'
                                    placeholder="Continue the story..."
@@ -62,9 +83,9 @@ export class Choice extends React.Component {
             }
         });
 
-        const option = await this.props.createOption(this.props.choice, this.state.optionDescription);
-        const choice = cloneDeep(this.props.choice);
-        choice.options = this.props.choice.options.concat(option);
+        const option = await this.props.createOption(this.state.choice, this.state.optionDescription);
+        const choice = cloneDeep(this.state.choice);
+        choice.options = this.state.choice.options.concat(option);
 
         this.setState({
             optionDescription: '',

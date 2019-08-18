@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
 import './App.css';
-import {Storyboard} from './components/Storyboard';
 import {NewChoice} from './components/NewChoice';
 import {getChoice, INITIAL_CHOICE_ID} from './services/Choices.service';
 import {cloneDeep} from 'lodash';
 import {createChoice} from "./services/Choices.service";
 import {createOption} from "./services/Choices.service";
+import {Choice} from "./components/Choice";
 
 const keys = {
     backspace: 8,
@@ -33,9 +33,17 @@ class App extends Component {
         console.log('App.render', this.state.choices);
         return (
             <div className="App margin-left-1 margin-top-1">
-                <Storyboard choices={this.state.choices}
-                            onClick={async (parentChoice, selectedOption, index) => await this.choose(parentChoice, selectedOption, index)}
-                            createOption={this.createOption}/>
+                <div className='storyboard'>
+                    {this.state.choices.map((choice, index) => {
+                        return (
+                            <Choice key={'choice-' + choice.id}
+                                    choice={choice}
+                                    isCurrentChoice={index === this.state.choices.length - 1}
+                                    onClick={(option) => this.choose(choice, option, index)}
+                                    createOption={this.createOption}/>
+                        )
+                    })}
+                </div>
                 {this.state.createNewChoice && (
                     <NewChoice parentOption={this.getParentOption()} createChoice={this.createChoice}/>
                 )}
@@ -57,16 +65,16 @@ class App extends Component {
 
     choose = async (parentChoice, selectedOption, index) => {
         // update the highlight option
-        (parentChoice.options || []).forEach(option => {
-            option.isSelected = option.id === selectedOption.id;
+        parentChoice.options = (parentChoice.options || []).map(option => {
+            return {
+                ...option,
+                // isHovered: false,
+                // isSelected: option.id === selectedOption.id
+            }
         });
 
         // while we fetch the next choice, update the loading prompt
         this.setState((state) => {
-            // if we are click an old option, get rid of all the choices after the newly selected current one
-            for (let i = index + 1; i < state.choices.length; i++) {
-                state.choices[i].options.forEach(option => option.isSelected = false)
-            }
             let choices = state.choices.slice(0, index + 1);
             return {
                 ...state,
@@ -84,26 +92,22 @@ class App extends Component {
         }
 
         this.setState((state) => {
-            let choices = state.choices;
-            let createNewChoice = false;
             if (nextChoice) {
-                choices = choices.concat(nextChoice);
-            } else {
-                createNewChoice = true;
+                this.state.choices = this.state.choices.concat(nextChoice);
             }
 
             return {
                 ...state,
                 loading: false,
-                selectedOption: undefined,
-                choices,
-                createNewChoice,
+                // selectedOption: undefined,
+                choices: this.state.choices,
+                createNewChoice: !nextChoice,
                 parentOptionId: selectedOption.id,
             }
         });
     };
 
-    onKeyDown = (event) => {
+    onKeyDown = async (event) => {
         const activeElement = document.activeElement;
         if (activeElement.localName === 'input') {
             if (event.keyCode === keys.escape) {
@@ -115,32 +119,32 @@ class App extends Component {
         const lastChoice = this.state.choices[this.state.choices.length - 1] || {};
         let availableOptions = (lastChoice.options || []);
 
-        let currOptionIndex = this.state.selectedOption === undefined
-            ? -1
-            : this.state.selectedOption;
 
         switch (event.keyCode) {
             case keys.up:
-                currOptionIndex = Math.max(currOptionIndex - 1, 0);
-                lastChoice.options = hoverSelectedOption(availableOptions, currOptionIndex);
+                // currOptionIndex = Math.max(currOptionIndex - 1, 0);
+                // lastChoice.options = hoverSelectedOption(availableOptions, currOptionIndex);
                 event.preventDefault();
                 break;
             case keys.down:
-                currOptionIndex = Math.min(currOptionIndex + 1, availableOptions.length - 1);
-                lastChoice.options = hoverSelectedOption(availableOptions, currOptionIndex);
+                // currOptionIndex = Math.min(currOptionIndex + 1, availableOptions.length - 1);
+                // lastChoice.options = hoverSelectedOption(availableOptions, currOptionIndex);
                 event.preventDefault();
                 break;
             case keys.backspace:
                 if (this.state.choices.length > 1 && !this.state.createNewChoice) {
-                    this.setState({...this.state, choices: this.state.choices.splice(0, this.state.choices.length - 1)});
+                    this.setState({
+                        ...this.state,
+                        choices: this.state.choices.splice(0, this.state.choices.length - 1)
+                    });
                 }
                 this.setState((state) => {
                     state.choices[state.choices.length - 1].options.forEach((o, index) => {
                         if (o.isSelected) {
-                            currOptionIndex = index
+                            // currOptionIndex = index
                         }
-                        o.isHovered = o.isSelected;
-                        o.isSelected = false;
+                        // o.isHovered = o.isSelected;
+                        // o.isSelected = false;
                     });
                     return {
                         choices: state.choices,
@@ -157,14 +161,17 @@ class App extends Component {
             case keys.eight:
             case keys.nine:
                 if (event.keyCode - keys.one < availableOptions.length) {
-                    currOptionIndex = event.keyCode - keys.one;
+                    // currOptionIndex = event.keyCode - keys.one;
                 } else {
                     break;
                 }
             // eslint-disable-next-line no-fallthrough
             case keys.enter:
+                let currOptionIndex = this.state.selectedOption === undefined
+                    ? -1
+                    : this.state.selectedOption;
                 if (currOptionIndex > -1) {
-                    this.choose(
+                    await this.choose(
                         lastChoice,
                         availableOptions[currOptionIndex],
                         this.state.choices.length - 1
@@ -176,9 +183,9 @@ class App extends Component {
                 return;
         }
 
-        if (currOptionIndex > -1) {
-            this.setState({...this.state, selectedOption: currOptionIndex});
-        }
+        // if (currOptionIndex > -1) {
+        //   this.setState({...this.state, selectedOption: currOptionIndex});
+        // }
     };
 
     getParentOption() {
@@ -206,7 +213,6 @@ class App extends Component {
         });
 
         this.setState((state) => {
-            // state.choices.push(choice);
             return {
                 ...state,
                 loading: false,
