@@ -1,6 +1,5 @@
 import React from 'react';
 import {Option} from "./Option";
-import {cloneDeep} from 'lodash';
 import {Keys} from '../util/Keys';
 
 const SelectedOptionsStates = {
@@ -145,18 +144,23 @@ export class Choice extends React.Component {
     createOption = async () => {
         this.setState((state) => {
             return {
-                optionDescription: state.optionDescription,
+                ...state,
                 submittingNewOption: true,
             }
         });
 
         const option = await this.props.createOption(this.state.choice, this.state.optionDescription);
-        const choice = cloneDeep(this.state.choice);
-        choice.options = this.state.choice.options.concat(option);
 
-        this.setState({
-            optionDescription: '',
-            submittingNewOption: false,
+        this.setState((state) => {
+            return {
+                ...state,
+                choice: {
+                    ...state.choice,
+                    options: this.state.choice.options.concat(option)
+                },
+                optionDescription: '',
+                submittingNewOption: false,
+            }
         })
     };
 

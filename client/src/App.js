@@ -1,27 +1,40 @@
 import React, {Component} from 'react';
 import './App.css';
 import {NewChoice} from './components/NewChoice';
-import {getChoice, INITIAL_CHOICE_ID} from './services/Choices.service';
 import {cloneDeep} from 'lodash';
-import {createChoice} from "./services/Choices.service";
+import {createChoice, getChoice, INITIAL_CHOICE_ID} from "./services/Choices.service";
 import {createOption} from "./services/Choices.service";
 import {Choice} from "./components/Choice";
+import { connect } from "react-redux";
+import {addChoice} from "./actions/ActionCreators";
 
-class App extends Component {
+const mapStateToProps = ({ choices }) => ({choices});
+
+const mapDispatchToProps = (dispatch) => ({
+    addChoice: (choice) => dispatch(addChoice(choice)),
+});
+
+class ConnectedApp extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            choices: props.choices
+        }
+    }
+
     render() {
-        if (!this.state || !this.state.choices) return 'Fetching...';
+        console.log('App.render', this.props.choices);
+        if (!this.props || !this.props.choices || !this.props.choices.length) return 'Fetching...';
         if (this.state.error) return 'Error!';
 
-        console.log('App.render', this.state.choices);
         return (
             <div className="App margin-left-1 margin-top-1">
                 <div className='storyboard'>
-                    {this.state.choices.map((choice, index) => {
+                    {this.props.choices.map((choice, index) => {
                         return (
                             <Choice key={'choice-' + choice.id}
                                     choice={choice}
-                                    isCurrentChoice={index === this.state.choices.length - 1}
-                                    onClick={(option) => this.choose(choice, option, index)}
+                                    isCurrentChoice={index === this.props.choices.length - 1}
                                     createOption={this.createOption}/>
                         )
                     })}
@@ -34,25 +47,19 @@ class App extends Component {
         );
     }
 
-    async componentWillMount() {
-        const firstChoice = await getChoice(INITIAL_CHOICE_ID);
-        this.setState({choices: [firstChoice]})
-    }
-
     componentDidUpdate() {
         window.scrollTo(0, document.body.scrollHeight);
     }
 
-    choose = async (parentChoice, selectedOption, index) => {
-        // update the highlight option
-        parentChoice.options = (parentChoice.options || []).map(option => {
-            return {
-                ...option,
-                // isHovered: false,
-                // isSelected: option.id === selectedOption.id
-            }
+    componentDidMount() {
+        getChoice(INITIAL_CHOICE_ID).then(choice => {
+            console.log('get initial choice', choice);
+            this.props.addChoice(choice)
         });
+    }
 
+    /*
+    choose = async (parentChoice, selectedOption, index) => {
         // while we fetch the next choice, update the loading prompt
         this.setState((state) => {
             let choices = state.choices.slice(0, index + 1);
@@ -79,13 +86,13 @@ class App extends Component {
             return {
                 ...state,
                 loading: false,
-                // selectedOption: undefined,
                 choices: this.state.choices,
                 createNewChoice: !nextChoice,
                 parentOptionId: selectedOption.id,
             }
         });
     };
+     */
 
     getParentOption() {
         const choicesLen = this.state.choices.length - 1;
@@ -139,11 +146,6 @@ class App extends Component {
     }
 }
 
-function hoverSelectedOption(options, selectedOptionIndex) {
-    options = cloneDeep(options || []);
-    options.forEach(option => option.isHovered = false);
-    if (options.length) options[selectedOptionIndex].isHovered = true;
-    return options;
-}
+const App = connect(mapStateToProps, mapDispatchToProps)(ConnectedApp);
 
 export default App;
