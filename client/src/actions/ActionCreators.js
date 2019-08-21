@@ -1,6 +1,7 @@
 import {ActionTypes} from "./ActionTypes";
 
-export const addChoice = (choice) => ({
+export const addChoice = (choiceIndex, choice) => ({
   type: ActionTypes.addChoice,
-  choice
+  choiceIndex,
+  choice,
 });

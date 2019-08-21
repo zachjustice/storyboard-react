@@ -6,13 +6,8 @@ import {createChoice, getChoice, INITIAL_CHOICE_ID} from "./services/Choices.ser
 import {createOption} from "./services/Choices.service";
 import {Choice} from "./components/Choice";
 import { connect } from "react-redux";
-import {addChoice} from "./actions/ActionCreators";
 
 const mapStateToProps = ({ choices }) => ({choices});
-
-const mapDispatchToProps = (dispatch) => ({
-    addChoice: (choice) => dispatch(addChoice(choice)),
-});
 
 class ConnectedApp extends Component {
     constructor(props) {
@@ -34,7 +29,7 @@ class ConnectedApp extends Component {
                         return (
                             <Choice key={'choice-' + choice.id}
                                     choice={choice}
-                                    isCurrentChoice={index === this.props.choices.length - 1}
+                                    choiceIndex={index}
                                     createOption={this.createOption}/>
                         )
                     })}
@@ -49,13 +44,6 @@ class ConnectedApp extends Component {
 
     componentDidUpdate() {
         window.scrollTo(0, document.body.scrollHeight);
-    }
-
-    componentDidMount() {
-        getChoice(INITIAL_CHOICE_ID).then(choice => {
-            console.log('get initial choice', choice);
-            this.props.addChoice(choice)
-        });
     }
 
     /*
@@ -146,6 +134,6 @@ class ConnectedApp extends Component {
     }
 }
 
-const App = connect(mapStateToProps, mapDispatchToProps)(ConnectedApp);
+const App = connect(mapStateToProps)(ConnectedApp);
 
 export default App;

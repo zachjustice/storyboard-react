@@ -1,6 +1,7 @@
 import React from 'react';
-import {Option} from "./Option";
+import Option from "./Option";
 import {Keys} from '../util/Keys';
+import {addChoice} from "../actions/ActionCreators";
 
 const SelectedOptionsStates = {
     selected: 'selected',
@@ -36,10 +37,10 @@ export class Choice extends React.Component {
                 <ol className='option-list'>
                     {(this.state.choice.options || []).map((option, index) => (
                         <Option value={option}
+                                choiceIndex={this.props.choiceIndex}
                                 isSelected={this.state.selectedOptionIndex === index && this.state.selectedOptionState === SelectedOptionsStates.selected}
                                 isHovered={this.state.selectedOptionIndex === index && this.state.selectedOptionState === SelectedOptionsStates.hovered}
-                                key={'option-' + option.id}
-                                onClick={this.onClick}/>
+                                key={'option-' + option.id} />
                     ))}
                     {(!this.state.choice.options || this.state.choice.options.length < 3) && (
                         <li>

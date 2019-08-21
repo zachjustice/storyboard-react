@@ -4,7 +4,7 @@ function rootReducer(state = {choices: []}, action) {
     console.log('rootReducer', state, action)
     if (action.type === ActionTypes.addChoice) {
         return {
-            choices: state.choices.concat(action.choice)
+            choices: state.choices.splice(0, action.choiceIndex + 1).concat(action.choice)
         }
     } else if (action.type === ActionTypes.chooseOption) {
         const nextChoiceId = state.option.nextChoice.id;
