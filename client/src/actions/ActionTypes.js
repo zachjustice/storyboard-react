@@ -1,6 +1,6 @@
 export const ActionTypes = Object.freeze({
     chooseStory: 'chooseStory',
-    selectOption: 'selectOption',
+    addChoice: 'addChoice',
     fetchingChoice: 'fetchingChoice',
     createOption: 'addOption',
     createChoice: 'createChoice',

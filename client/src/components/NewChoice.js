@@ -1,10 +1,10 @@
 import React from 'react';
 import {connect} from "react-redux";
-import {selectOption} from "../actions/ActionCreators";
+import {addChoice} from "../actions/ActionCreators";
 import {createChoice} from "../services/Choices.service";
 
 const mapDispatchToProps = dispatch => ({
-    selectOption: (choiceIndex, choice) => dispatch(selectOption(choiceIndex, choice)),
+    addChoice: (choiceIndex, choice) => dispatch(addChoice(choiceIndex, choice)),
 });
 
 class NewChoice extends React.Component {
@@ -51,7 +51,7 @@ class NewChoice extends React.Component {
         this.setState({creatingChoice: true});
         const choice = await createChoice(parentOptionId, choiceContent);
         this.setState({creatingChoice: false});
-        return this.props.selectOption(this.props.choiceIndex, choice);
+        return this.props.addChoice(this.props.choiceIndex, choice);
     };
 
     onChange(evt) {
