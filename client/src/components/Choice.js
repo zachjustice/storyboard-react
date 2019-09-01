@@ -1,9 +1,9 @@
 import React from 'react';
-import Option from "./Option";
-import {Keys} from '../util/Keys';
 import {addChoice, createChoice, fetchingChoice} from "../actions/ActionCreators";
 import {connect} from "react-redux";
-import {getChoice} from "../services/Choices.service";
+import OptionList from "./OptionList";
+import {Keys} from "../util/Keys";
+import {createOption, getChoice} from "../services/Choices.service";
 
 const SelectedOptionsStates = {
     selected: 'selected',
@@ -19,12 +19,7 @@ const mapDispatchToProps = dispatch => ({
 export class Choice extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            choice: props.choice,
-            optionDescription: '',
-            selectedOptionIndex: null,
-            selectedOptionState: SelectedOptionsStates.hovered
-        }
+        this.state = {}
     }
 
     render() {
@@ -38,37 +33,16 @@ export class Choice extends React.Component {
                         <span className='bold dir margin-right-0_5'> ~ </span>
                     </div>
                     <div className='choice-content'>
-                        {this.state.choice.content}
+                        {this.props.choice.content}
                     </div>
-                </div>
 
-                <ol className='option-list'>
-                    {(this.state.choice.options || []).map((option, index) => (
-                        <Option value={option}
-                                selectOption={(option) => this.selectOption(this.props.choiceIndex, option)}
-                                isSelected={this.state.selectedOptionIndex === index && this.state.selectedOptionState === SelectedOptionsStates.selected}
-                                isHovered={this.state.selectedOptionIndex === index && this.state.selectedOptionState === SelectedOptionsStates.hovered}
-                                key={'option-' + option.id}/>
-                    ))}
-                    {(!this.state.choice.options || this.state.choice.options.length < 3) && (
-                        <li>
-                            <input className='new-option'
-                                   placeholder="Continue the story..."
-                                   value={this.state.optionDescription}
-                                   onChange={evt => this.onOptionDescriptionChange(evt)}>
-                            </input>
-                        </li>
-                    )}
-                    {(this.state.optionDescription && !this.state.submittingNewOption &&
-                        <span className="clickable"
-                              onClick={() => this.createOption()}>
-                            Submit
-                        </span>
-                    )}
-                    {(this.state.optionDescription && this.state.submittingNewOption &&
-                        <span>...</span>
-                    )}
-                </ol>
+                </div>
+                <OptionList
+                    selectOption={(option) => this.selectOption(this.props.choiceIndex, option)}
+                    createOption={(optionDescription) => this.createOption(this.props.choiceIndex, this.props.choice, optionDescription)}
+                    selectedOptionIndex={this.state.selectedOptionIndex}
+                    selectedOptionState={this.state.selectedOptionState}
+                    options={this.props.choice.options} />
             </div>
         );
     }
@@ -96,28 +70,6 @@ export class Choice extends React.Component {
                 event.preventDefault();
                 break;
             case Keys.backspace:
-                /*
-                TODO dispatch event
-                if (this.state.choices.length > 1 && !this.state.createChoice) {
-                    this.setState({
-                        ...this.state,
-                        choices: this.state.choices.splice(0, this.state.choices.length - 1)
-                    });
-                }
-                this.setState((state) => {
-                    state.choices[state.choices.length - 1].options.forEach((o, index) => {
-                        if (o.isSelected) {
-                            // currOptionIndex = index
-                        }
-                        // o.isHovered = o.isSelected;
-                        // o.isSelected = false;
-                    });
-                    return {
-                        choices: state.choices,
-                        createChoice: false
-                    }
-                });
-                 */
                 break;
             case Keys.one:
             case Keys.two:
@@ -127,36 +79,17 @@ export class Choice extends React.Component {
             case Keys.six:
             case Keys.eight:
             case Keys.nine:
-                let availableOptions = (this.state.choice.options || []);
+                let availableOptions = (this.props.choice.options || []);
                 if ((event.keyCode - Keys.one) < availableOptions.length) {
-                    this.selectOption(this.props.choiceIndex, this.state.choice.options[event.keyCode - Keys.one]);
+                    this.selectOption(this.props.choiceIndex, this.props.choice.options[event.keyCode - Keys.one]);
                 }
                 break;
             case Keys.enter:
-                this.selectOption(this.props.choiceIndex, this.state.choice.options[this.state.selectedOptionIndex]);
+                this.selectOption(this.props.choiceIndex, this.props.choice.options[this.state.selectedOptionIndex]);
                 break;
             default:
                 return;
         }
-    };
-
-    createOption = async () => {
-        this.setState({ submittingNewOption: true, });
-
-        const option = await this.props.createOption(this.state.choice, this.state.optionDescription);
-
-        this.setState((state) => ({
-            choice: {
-                ...state.choice,
-                options: state.choice.options.concat(option)
-            },
-            optionDescription: '',
-            submittingNewOption: false,
-        }))
-    };
-
-    onOptionDescriptionChange = (evt) => {
-        this.setState({optionDescription: evt.target.value});
     };
 
     selectOption = async (choiceIndex, option) => {
@@ -164,7 +97,7 @@ export class Choice extends React.Component {
         document.removeEventListener('keydown', this.onKeyDown);
 
         this.setState((state) => ({
-            selectedOptionIndex: state.choice.options.findIndex(o => o.id === option.id),
+            selectedOptionIndex: this.props.choice.options.findIndex(o => o.id === option.id),
             selectedOptionState: SelectedOptionsStates.selected
         }));
 
@@ -177,8 +110,17 @@ export class Choice extends React.Component {
         }
     };
 
+    createOption = async (choiceIndex, choice, optionDescription) => {
+        const option = await createOption(choice.id, optionDescription);
+        const newChoice = {
+            ...choice,
+            options: choice.options.concat(option)
+        };
+        return this.props.addChoice(choiceIndex - 1, newChoice);
+    };
+
     moveHoveredOption(delta) {
-        let availableOptions = (this.state.choice.options || []);
+        let availableOptions = (this.props.choice.options || []);
         let currOptionIndex;
         if (this.state.selectedOptionIndex === null) {
             currOptionIndex = 0;

@@ -1,12 +1,10 @@
 import React, {Component} from 'react';
 import './App.css';
 import NewChoice from './components/NewChoice';
-import {cloneDeep} from 'lodash';
-import {createOption} from "./services/Choices.service";
 import Choice from "./components/Choice";
 import {connect} from "react-redux";
 
-const mapStateToProps = ({ choices, createChoice, fetchingChoice }) => ({choices, createChoice, fetchingChoice});
+const mapStateToProps = (state) => ({...state});
 
 class ConnectedApp extends Component {
     constructor(props) {
@@ -28,8 +26,7 @@ class ConnectedApp extends Component {
                         return (
                             <Choice key={'choice-' + choice.id}
                                     choice={choice}
-                                    choiceIndex={index}
-                                    createOption={this.createOption}/>
+                                    choiceIndex={index}/>
                         )
                     })}
                 </div>
@@ -44,23 +41,6 @@ class ConnectedApp extends Component {
 
     componentDidUpdate() {
         window.scrollTo(0, document.body.scrollHeight);
-    }
-
-    createOption = async (choice, optionDescription) => {
-        const option = await createOption(choice.id, optionDescription);
-
-        this.setState((state) => {
-            const choices = cloneDeep(state.choices);
-            const choiceIndex = state.choices.findIndex(c => choice.id === c.id);
-            choices[choiceIndex].options = choices[choiceIndex].options.concat(option);
-
-            return {
-                ...state,
-                choices,
-            }
-        });
-
-        return option;
     }
 }
 

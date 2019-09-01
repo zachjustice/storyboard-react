@@ -6,13 +6,13 @@ export const addChoice = (choiceIndex, choice) => ({
   choice,
 });
 
+export const fetchingChoice = (choiceIndex) => ({
+    type: ActionTypes.fetchingChoice,
+    choiceIndex
+});
+
 export const createChoice = (choiceIndex, parentOptionId) => ({
     type: ActionTypes.createChoice,
     choiceIndex,
     parentOptionId,
-});
-
-export const fetchingChoice = (choiceIndex) => ({
-    type: ActionTypes.fetchingChoice,
-    choiceIndex
 });
