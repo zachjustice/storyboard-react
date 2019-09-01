@@ -19,7 +19,9 @@ const mapDispatchToProps = dispatch => ({
 export class Choice extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {}
+        this.state = {
+            isCurrentChoice: true
+        }
     }
 
     render() {
@@ -38,6 +40,7 @@ export class Choice extends React.Component {
 
                 </div>
                 <OptionList
+                    isCurrentChoice={this.state.isCurrentChoice}
                     selectOption={(option) => this.selectOption(this.props.choiceIndex, option)}
                     createOption={(optionDescription) => this.createOption(this.props.choiceIndex, this.props.choice, optionDescription)}
                     selectedOptionIndex={this.state.selectedOptionIndex}
@@ -96,10 +99,11 @@ export class Choice extends React.Component {
         if (!option) return;
         document.removeEventListener('keydown', this.onKeyDown);
 
-        this.setState((state) => ({
+        this.setState({
             selectedOptionIndex: this.props.choice.options.findIndex(o => o.id === option.id),
-            selectedOptionState: SelectedOptionsStates.selected
-        }));
+            selectedOptionState: SelectedOptionsStates.selected,
+            isCurrentChoice: false,
+        });
 
         if (option.nextChoice && option.nextChoice.id) {
             this.props.fetchingChoice(choiceIndex);

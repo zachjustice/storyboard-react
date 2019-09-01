@@ -9,7 +9,7 @@ const SelectedOptionsStates = {
 };
 
 const mapDispatchToProps = dispatch => ({
-    addChoice: (choiceIndex, choice)  => dispatch(addChoice(choiceIndex, choice)),
+    addChoice: (choiceIndex, choice) => dispatch(addChoice(choiceIndex, choice)),
     createChoice: (choiceIndex, parentOptionId) => dispatch(createChoice(choiceIndex, parentOptionId)),
     fetchingChoice: (choiceIndex) => dispatch(fetchingChoice(choiceIndex)),
 });
@@ -32,7 +32,8 @@ class OptionList extends React.Component {
                             isHovered={this.props.selectedOptionIndex === index && this.props.selectedOptionState === SelectedOptionsStates.hovered}
                             key={'option-' + option.id}/>
                 ))}
-                {(!this.props.options || this.props.options.length < 3) && (
+
+                {this.props.isCurrentChoice && (!this.props.options || this.props.options.length < 3) && (
                     <li>
                         <input className='new-option'
                                placeholder="Continue the story..."
@@ -41,12 +42,14 @@ class OptionList extends React.Component {
                         </input>
                     </li>
                 )}
-                {(this.state.optionDescription && !this.state.submittingNewOption &&
+
+                {this.state.optionDescription && !this.state.submittingNewOption && (
                     <span className="clickable"
                           onClick={() => this.createOption(this.state.optionDescription)}>
                             Submit
-                        </span>
+                    </span>
                 )}
+
                 {(this.state.optionDescription && this.state.submittingNewOption &&
                     <span>...</span>
                 )}
@@ -55,9 +58,9 @@ class OptionList extends React.Component {
     }
 
     createOption = async (optionDescription) => {
-        this.setState({ submittingNewOption: true });
+        this.setState({submittingNewOption: true});
         await this.props.createOption(optionDescription);
-        this.setState({ optionDescription: '', submittingNewOption: false });
+        this.setState({optionDescription: '', submittingNewOption: false});
     };
 
     onOptionDescriptionChange = (evt) => {
