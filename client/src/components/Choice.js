@@ -2,11 +2,17 @@ import React from 'react';
 import Option from "./Option";
 import {Keys} from '../util/Keys';
 import {addChoice} from "../actions/ActionCreators";
+import {connect} from "react-redux";
+import {getChoice} from "../services/Choices.service";
 
 const SelectedOptionsStates = {
     selected: 'selected',
     hovered: 'hovered'
 };
+
+const mapDispatchToProps = dispatch => ({
+    addChoice: (choiceIndex, choice) => dispatch(addChoice(choiceIndex, choice))
+});
 
 export class Choice extends React.Component {
     constructor(props) {
@@ -37,17 +43,17 @@ export class Choice extends React.Component {
                 <ol className='option-list'>
                     {(this.state.choice.options || []).map((option, index) => (
                         <Option value={option}
-                                choiceIndex={this.props.choiceIndex}
+                                selectOption={(option) => this.selectOption(this.props.choiceIndex, option)}
                                 isSelected={this.state.selectedOptionIndex === index && this.state.selectedOptionState === SelectedOptionsStates.selected}
                                 isHovered={this.state.selectedOptionIndex === index && this.state.selectedOptionState === SelectedOptionsStates.hovered}
-                                key={'option-' + option.id} />
+                                key={'option-' + option.id}/>
                     ))}
                     {(!this.state.choice.options || this.state.choice.options.length < 3) && (
                         <li>
                             <input className='new-option'
                                    placeholder="Continue the story..."
                                    value={this.state.optionDescription}
-                                   onChange={evt => this.onChange(evt)}>
+                                   onChange={evt => this.onOptionDescriptionChange(evt)}>
                             </input>
                         </li>
                     )}
@@ -77,7 +83,6 @@ export class Choice extends React.Component {
             }
             return;
         }
-
 
         switch (event.keyCode) {
             case Keys.up:
@@ -121,21 +126,12 @@ export class Choice extends React.Component {
             case Keys.eight:
             case Keys.nine:
                 let availableOptions = (this.state.choice.options || []);
-                if (event.keyCode - Keys.one < availableOptions.length) {
-                    // currOptionIndex = event.keyCode - Keys.one;
-                    // TODO dispatch event
+                if ((event.keyCode - Keys.one) < availableOptions.length) {
+                    this.selectOption(this.props.choiceIndex, this.state.choice.options[event.keyCode - Keys.one]);
                 }
                 break;
             case Keys.enter:
-                // use onclick callback
-                // TODO dispatch event
-                /*
-                await this.choose(
-                    lastChoice,
-                    availableOptions[currOptionIndex],
-                    this.state.choices.length - 1
-                );
-                 */
+                this.selectOption(this.props.choiceIndex, this.state.choice.options[this.state.selectedOptionIndex]);
                 break;
             default:
                 return;
@@ -143,45 +139,35 @@ export class Choice extends React.Component {
     };
 
     createOption = async () => {
-        this.setState((state) => {
-            return {
-                ...state,
-                submittingNewOption: true,
-            }
-        });
+        this.setState({ submittingNewOption: true, });
 
         const option = await this.props.createOption(this.state.choice, this.state.optionDescription);
 
-        this.setState((state) => {
-            return {
-                ...state,
-                choice: {
-                    ...state.choice,
-                    options: this.state.choice.options.concat(option)
-                },
-                optionDescription: '',
-                submittingNewOption: false,
-            }
-        })
+        this.setState((state) => ({
+            choice: {
+                ...state.choice,
+                options: state.choice.options.concat(option)
+            },
+            optionDescription: '',
+            submittingNewOption: false,
+        }))
     };
 
-    onChange = (evt) => {
-        this.setState({
-            ...this.state,
-            optionDescription: evt.target.value
-        });
+    onOptionDescriptionChange = (evt) => {
+        this.setState({optionDescription: evt.target.value});
     };
 
-    onClick = (option) => {
+    selectOption = async (choiceIndex, option) => {
+        if (!option) return;
         document.removeEventListener('keydown', this.onKeyDown);
-        this.setState((state) => {
-            return {
-                ...state,
-                selectedOptionIndex: state.choice.options.findIndex(o => o.id === option.id),
-                selectedOptionState: SelectedOptionsStates.selected
-            }
-        });
-        return this.props.onClick(option);
+
+        this.setState((state) => ({
+            selectedOptionIndex: state.choice.options.findIndex(o => o.id === option.id),
+            selectedOptionState: SelectedOptionsStates.selected
+        }));
+
+        const nextChoice = await getChoice(option.nextChoice.id);
+        return this.props.addChoice(choiceIndex, nextChoice);
     };
 
     moveHoveredOption(delta) {
@@ -195,12 +181,11 @@ export class Choice extends React.Component {
 
         if (currOptionIndex === -1) currOptionIndex = availableOptions.length - 1;
 
-        this.setState((state) => {
-            return {
-                ...state,
-                selectedOptionIndex: currOptionIndex,
-                selectedOptionState: SelectedOptionsStates.hovered
-            }
+        this.setState({
+            selectedOptionIndex: currOptionIndex,
+            selectedOptionState: SelectedOptionsStates.hovered
         });
     }
 }
+
+export default connect(null, mapDispatchToProps)(Choice);

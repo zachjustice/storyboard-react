@@ -2,10 +2,9 @@ import React, {Component} from 'react';
 import './App.css';
 import {NewChoice} from './components/NewChoice';
 import {cloneDeep} from 'lodash';
-import {createChoice, getChoice, INITIAL_CHOICE_ID} from "./services/Choices.service";
-import {createOption} from "./services/Choices.service";
-import {Choice} from "./components/Choice";
-import { connect } from "react-redux";
+import {createChoice, createOption} from "./services/Choices.service";
+import Choice from "./components/Choice";
+import {connect} from "react-redux";
 
 const mapStateToProps = ({ choices }) => ({choices});
 
