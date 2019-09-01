@@ -72,7 +72,7 @@ async function updateChoice(parent, args, context, info) {
         updateChoiceData.options = { connect: { id: args.nextOptionId } }
     }
 
-    return await context.prisma.updateChoice({
+    return context.prisma.updateChoice({
         data: updateChoiceData,
         where: { id: args.id } ,
     });
@@ -112,6 +112,11 @@ function deleteOption(parent, args, context, info) {
     return context.prisma.deleteOption({ id: args.id })
 }
 
+function deleteOptions(parent, args, context, info) {
+    args.ids.forEach(async (id) => await context.prisma.deleteOption({ id }));
+    return args.ids;
+}
+
 module.exports = {
     signup,
     login,
@@ -121,4 +126,5 @@ module.exports = {
     updateOption,
     deleteChoice,
     deleteOption,
-}
+    deleteOptions,
+};

@@ -12,6 +12,7 @@ type Mutation {
 
     deleteChoice(id: String!): Choice!
     deleteOption(id: String!): Option!
+    deleteOptions(ids: [String!]!): [String!]
     # user signup, login
     signup(email: String!, password: String!, name: String!): AuthPayload
     login(email: String!, password: String!): AuthPayload
