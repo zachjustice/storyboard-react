@@ -1,7 +1,7 @@
 import React from 'react';
 import Option from "./Option";
 import {Keys} from '../util/Keys';
-import {addChoice, createChoice, fetchingChoice} from "../actions/ActionCreators";
+import {selectOption, createChoice, fetchingChoice} from "../actions/ActionCreators";
 import {connect} from "react-redux";
 import {getChoice} from "../services/Choices.service";
 
@@ -11,7 +11,7 @@ const SelectedOptionsStates = {
 };
 
 const mapDispatchToProps = dispatch => ({
-    addChoice: (choiceIndex, choice)  => dispatch(addChoice(choiceIndex, choice)),
+    selectOption: (choiceIndex, choice)  => dispatch(selectOption(choiceIndex, choice)),
     createChoice: (choiceIndex, parentOptionId) => dispatch(createChoice(choiceIndex, parentOptionId)),
     fetchingChoice: (choiceIndex) => dispatch(fetchingChoice(choiceIndex)),
 });
@@ -171,7 +171,7 @@ export class Choice extends React.Component {
         if (option.nextChoice && option.nextChoice.id) {
             this.props.fetchingChoice(choiceIndex);
             const nextChoice = await getChoice(option.nextChoice.id);
-            return this.props.addChoice(choiceIndex, nextChoice);
+            return this.props.selectOption(choiceIndex, nextChoice);
         } else {
             return this.props.createChoice(choiceIndex, option.id);
         }
