@@ -1,7 +1,6 @@
 import {client} from './GraphQLClient';
 import gql from 'graphql-tag'
 
-
 export const INITIAL_CHOICE_ID = "cjsv4z9uxo0vg0b794bjfwjvu";
 
 export async function createChoice(parentOptionId, content) {
@@ -20,8 +19,8 @@ export async function createChoice(parentOptionId, content) {
                 }
             }
         }`
-    }).then(response => {
-        return response.data.createChoice;
+    }).then(({ data }) => {
+        return data.createChoice;
     })
     .catch(console.error)
 }
@@ -42,8 +41,8 @@ export async function createOption(parentChoiceId, optionDescription) {
                 }
             }
         }`
-    }).then(response => {
-        return response.data.createOption;
+    }).then(({ data }) => {
+        return data.createOption;
     })
     .catch(console.error)
 }

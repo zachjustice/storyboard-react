@@ -1,10 +1,16 @@
 import React from 'react';
+import {connect} from "react-redux";
+import {addChoice} from "../actions/ActionCreators";
+import {createChoice} from "../services/Choices.service";
 
-export class NewChoice extends React.Component {
+const mapDispatchToProps = dispatch => ({
+    addChoice: (choiceIndex, choice) => dispatch(addChoice(choiceIndex, choice)),
+});
+
+class NewChoice extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            parentOption: props.parentOption,
             choiceContent: ''
         };
     }
@@ -25,21 +31,32 @@ export class NewChoice extends React.Component {
                     </input>
                 </div>
 
-                {this.state.choiceContent && (
+                {this.state.choiceContent && !this.state.creatingChoice && (
                     <ol>
-                        <span className="clickable" onClick={() => this.props.createChoice(this.state.parentOption.id, this.state.choiceContent)}>
+                        <span className="clickable"
+                              onClick={() => this.onClick(this.props.parentOptionId, this.state.choiceContent)}>
                             Submit
                         </span>
                     </ol>
+                )}
+
+                {this.state.creatingChoice && (
+                    <ol>...</ol>
                 )}
             </div>
         )
     }
 
+    onClick = async (parentOptionId, choiceContent) => {
+        this.setState({creatingChoice: true});
+        const choice = await createChoice(parentOptionId, choiceContent);
+        this.setState({creatingChoice: false});
+        return this.props.addChoice(this.props.choiceIndex, choice);
+    };
+
     onChange(evt) {
-        this.setState({
-            ...this.state,
-            choiceContent: evt.target.value
-        });
+        this.setState({choiceContent: evt.target.value});
     }
 }
+
+export default connect(null, mapDispatchToProps)(NewChoice);
