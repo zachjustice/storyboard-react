@@ -16,3 +16,8 @@ export const createChoice = (choiceIndex, parentOptionId) => ({
     choiceIndex,
     parentOptionId,
 });
+
+export const undoChoiceSelection = (choiceIndex) => ({
+    type: ActionTypes.undoChoiceSelection,
+    choiceIndex,
+});

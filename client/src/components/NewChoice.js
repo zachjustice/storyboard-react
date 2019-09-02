@@ -1,10 +1,12 @@
 import React from 'react';
 import {connect} from "react-redux";
-import {addChoice} from "../actions/ActionCreators";
+import {addChoice, undoChoiceSelection} from "../actions/ActionCreators";
 import {createChoice} from "../services/Choices.service";
+import {Keys} from "../util/Keys";
 
 const mapDispatchToProps = dispatch => ({
     addChoice: (choiceIndex, choice) => dispatch(addChoice(choiceIndex, choice)),
+    undoChoiceSelection: (choiceIndex) => dispatch(undoChoiceSelection(choiceIndex)),
 });
 
 class NewChoice extends React.Component {
@@ -27,14 +29,14 @@ class NewChoice extends React.Component {
                     </div>
                     <input className='new-choice'
                            placeholder="What's next...?"
-                           onChange={evt => this.onChange(evt)}>
+                           onChange={this.updateChoiceContent}>
                     </input>
                 </div>
 
                 {this.state.choiceContent && !this.state.creatingChoice && (
                     <ol>
                         <span className="clickable"
-                              onClick={() => this.onClick(this.props.parentOptionId, this.state.choiceContent)}>
+                              onClick={() => this.submit(this.props.choiceIndex, this.props.parentOptionId, this.state.choiceContent)}>
                             Submit
                         </span>
                     </ol>
@@ -47,14 +49,41 @@ class NewChoice extends React.Component {
         )
     }
 
-    onClick = async (parentOptionId, choiceContent) => {
+    componentWillMount() {
+        document.addEventListener('keydown', this.onKeyDown);
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.props.isCurrentChoice) {
+            document.addEventListener('keydown', this.onKeyDown);
+        } else {
+            document.removeEventListener('keydown', this.onKeyDown);
+        }
+    }
+
+    onKeyDown = async (event) => {
+        switch (event.keyCode) {
+            case Keys.backspace:
+                this.props.undoChoiceSelection(this.props.parentOptionId);
+                document.removeEventListener('keydown', this.onKeyDown);
+                break;
+            case Keys.enter:
+                this.submit(this.props.parentOptionId, this.state.choiceContent);
+                break;
+            default:
+                return;
+        }
+    };
+
+    submit = async (choiceIndex, parentOptionId, choiceContent) => {
         this.setState({creatingChoice: true});
         const choice = await createChoice(parentOptionId, choiceContent);
         this.setState({creatingChoice: false});
-        return this.props.addChoice(this.props.choiceIndex, choice);
+
+        return this.props.addChoice(choiceIndex, choice);
     };
 
-    onChange(evt) {
+    updateChoiceContent = (evt) => {
         this.setState({choiceContent: evt.target.value});
     }
 }

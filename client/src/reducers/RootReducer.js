@@ -23,6 +23,20 @@ function rootReducer(state = {choices: []}, action) {
             fetchingChoice: true,
             choices: state.choices.splice(0, action.choiceIndex + 1),
         }
+    } else if (action.type === ActionTypes.undoChoiceSelection) {
+        let choices;
+        if (state.createChoice) {
+            choices = state.choices
+        } else {
+            choices = state.choices.splice(0, action.choiceIndex);
+        }
+
+        return {
+            ...state,
+            fetchingChoice: false,
+            choices,
+            createChoice: null,
+        }
     }
 
     return state

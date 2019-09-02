@@ -1,5 +1,5 @@
 import React from 'react';
-import {addChoice, createChoice, fetchingChoice} from "../actions/ActionCreators";
+import {addChoice, createChoice, fetchingChoice, undoChoiceSelection} from "../actions/ActionCreators";
 import {connect} from "react-redux";
 import OptionList from "./OptionList";
 import {Keys} from "../util/Keys";
@@ -14,6 +14,7 @@ const mapDispatchToProps = dispatch => ({
     addChoice: (choiceIndex, choice)  => dispatch(addChoice(choiceIndex, choice)),
     createChoice: (choiceIndex, parentOptionId) => dispatch(createChoice(choiceIndex, parentOptionId)),
     fetchingChoice: (choiceIndex) => dispatch(fetchingChoice(choiceIndex)),
+    undoChoiceSelection: (choiceIndex) => dispatch(undoChoiceSelection(choiceIndex)),
 });
 
 export class Choice extends React.Component {
@@ -54,6 +55,14 @@ export class Choice extends React.Component {
         document.addEventListener('keydown', this.onKeyDown);
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.props.isCurrentChoice) {
+            document.addEventListener('keydown', this.onKeyDown);
+        } else {
+            document.removeEventListener('keydown', this.onKeyDown);
+        }
+    }
+
     onKeyDown = async (event) => {
         const activeElement = document.activeElement;
         if (activeElement.localName === 'input') {
@@ -73,6 +82,8 @@ export class Choice extends React.Component {
                 event.preventDefault();
                 break;
             case Keys.backspace:
+                this.props.undoChoiceSelection(this.props.choiceIndex);
+                document.removeEventListener('keydown', this.onKeyDown);
                 break;
             case Keys.one:
             case Keys.two:

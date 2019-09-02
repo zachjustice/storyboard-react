@@ -15,7 +15,7 @@ class ConnectedApp extends Component {
     }
 
     render() {
-        console.log('App.render', this.props);
+        // console.log('App.render', this.props);
         if (!this.props || !this.props.choices || !this.props.choices.length) return 'Fetching...';
         if (this.state.error) return 'Error!';
 
@@ -25,13 +25,14 @@ class ConnectedApp extends Component {
                     {this.props.choices.map((choice, index) => {
                         return (
                             <Choice key={'choice-' + choice.id}
+                                    isCurrentChoice={index === (this.props.choices.length - 1) && !this.props.createChoice}
                                     choice={choice}
                                     choiceIndex={index}/>
                         )
                     })}
                 </div>
                 {this.props.createChoice && !this.props.fetchingChoice && (
-                    <NewChoice choiceIndex={this.state.choices.length}
+                    <NewChoice choiceIndex={this.props.choices.length}
                                parentOptionId={this.props.createChoice.parentOptionId}/>
                 )}
                 {this.props.fetchingChoice && '...'}
