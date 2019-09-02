@@ -110,12 +110,12 @@ class OptionList extends React.Component {
         return { setFocus, ref }
     };
 
-    onClick() {
+    onClick = () => {
         // reset the selectedOptionIndex so that when the user is no longer using the input, and hits up- or down-arrow
         // it starts at the last/first element, respectively.
         this.setState({selectedOptionIndex: -1, selectedOptionState: null});
         this.newOptionInputFocus.setFocus(true);
-    }
+    };
 
     onKeyDown = async (event) => {
         const activeElement = document.activeElement;
@@ -182,14 +182,14 @@ class OptionList extends React.Component {
                 this.newOptionInputFocus.setFocus(false);
                 break;
             case Keys.enter:
-                await this.selectOption(this.props.choiceIndex, this.props.options[this.state.selectedOptionIndex]);
+                this.createOption(this.state.optionDescription);
                 break;
             default:
                 break;
         }
     };
 
-    moveHoveredOption(delta) {
+    moveHoveredOption = (delta) => {
         let availableOptions = (this.props.options || []);
         let currOptionIndex = (this.state.selectedOptionIndex + delta) % availableOptions.length;
         if (currOptionIndex < 0) currOptionIndex = availableOptions.length - 1;
@@ -203,7 +203,7 @@ class OptionList extends React.Component {
             selectedOptionIndex: currOptionIndex,
             selectedOptionState: SelectedOptionsStates.hovered
         });
-    }
+    };
 
     selectOption = async (choiceIndex, option) => {
         if (!option) return;

@@ -46,7 +46,17 @@ export async function createChoice(parentOptionId, content) {
             content,
             parentOptionId
         },
-        mutation: createChoiceQuery
+        mutation: createChoiceQuery,
+        update: (store, { data: { createChoice } }) => {
+            console.log('createChoice', createChoice);
+            store.writeQuery({
+                query: getChoiceQuery,
+                variables: { id: createChoice.id },
+                data: {
+                    choice: { ...createChoice }
+                },
+            })
+        }
     }).then(({data}) => {
         return data.createChoice;
     }).catch(console.error)
@@ -68,7 +78,7 @@ export async function createOption(parentChoiceId, optionDescription) {
                 }
             };
 
-            store.writeQuery({ query: getChoiceQuery, data: updatedChoice});
+            store.writeQuery({ query: getChoiceQuery, variables: { id: parentChoiceId }, data: updatedChoice});
         }
     }).then(({data}) => {
         return data.createOption;

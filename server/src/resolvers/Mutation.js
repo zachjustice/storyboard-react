@@ -1,11 +1,11 @@
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
-const {APP_SECRET, getUserId} = require('../utils')
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const {APP_SECRET, getUserId} = require('../utils');
 
 async function signup(parent, args, context, info) {
-    const password = await bcrypt.hash(args.password, 10)
-    const user = await context.prisma.createUser({...args, password})
-    const token = jwt.sign({userId: user.id}, APP_SECRET)
+    const password = await bcrypt.hash(args.password, 10);
+    const user = await context.prisma.createUser({...args, password});
+    const token = jwt.sign({userId: user.id}, APP_SECRET);
     return {
         token,
         user,
@@ -13,17 +13,17 @@ async function signup(parent, args, context, info) {
 }
 
 async function login(parent, args, context, info) {
-    const user = await context.prisma.user({email: args.email})
+    const user = await context.prisma.user({email: args.email});
     if (!user) {
         throw new Error('No such user found')
     }
 
-    const valid = await bcrypt.compare(args.password, user.password)
+    const valid = await bcrypt.compare(args.password, user.password);
     if (!valid) {
         throw new Error('Invalid password')
     }
 
-    const token = jwt.sign({userId: user.id}, APP_SECRET)
+    const token = jwt.sign({userId: user.id}, APP_SECRET);
     return {
         token,
         user,
@@ -31,16 +31,16 @@ async function login(parent, args, context, info) {
 }
 
 async function createChoice(parent, args, context, info) {
-    const userId = getUserId(context)
+    const userId = getUserId(context);
     const choice = await context.prisma.createChoice({
         content: args.content,
         // postedBy: { connect: { id: userId } },
-    })
+    });
 
     await context.prisma.updateOption({
-        data: { nextChoice: { connect: { id: choice.id } } },
-        where: { id: args.parentOptionId },
-    })
+        data: {nextChoice: {connect: {id: choice.id}}},
+        where: {id: args.parentOptionId},
+    });
 
     return choice;
 }
@@ -51,12 +51,12 @@ async function createOption(parent, args, context, info) {
     const option = await context.prisma.createOption({
         // user: { connect: { id: userId } },
         description: args.description,
-    })
+    });
 
     await context.prisma.updateChoice({
-        data: { options: { connect: { id: option.id } } },
-        where: { id: args.parentChoiceId },
-    })
+        data: {options: {connect: {id: option.id}}},
+        where: {id: args.parentChoiceId},
+    });
 
     return option
 }
@@ -69,12 +69,12 @@ async function updateChoice(parent, args, context, info) {
     }
 
     if (args.nextOptionId) {
-        updateChoiceData.options = { connect: { id: args.nextOptionId } }
+        updateChoiceData.options = {connect: {id: args.nextOptionId}}
     }
 
     return context.prisma.updateChoice({
         data: updateChoiceData,
-        where: { id: args.id } ,
+        where: {id: args.id},
     });
 }
 
@@ -86,18 +86,18 @@ async function updateOption(parent, args, context, info) {
     }
 
     if (args.nextChoiceId) {
-        updateOptionData.nextChoice = { connect: { id: args.nextChoiceId } }
+        updateOptionData.nextChoice = {connect: {id: args.nextChoiceId}}
     }
 
     const option = await context.prisma.updateOption({
         data: updateOptionData,
-        where: { id: args.id },
+        where: {id: args.id},
     });
 
     if (args.parentChoiceId) {
         await context.prisma.updateChoice({
-            data: { options: { connect: { id: option.id } } },
-            where: { id: args.parentChoiceId },
+            data: {options: {connect: {id: option.id}}},
+            where: {id: args.parentChoiceId},
         })
     }
 
@@ -105,16 +105,39 @@ async function updateOption(parent, args, context, info) {
 }
 
 function deleteChoice(parent, args, context, info) {
-   return context.prisma.deleteChoice({ id: args.id })
+    return context.prisma.deleteChoice({id: args.id})
+}
+
+function deleteChoices(parent, args, context, info) {
+    args.ids.forEach(async (id) => {
+        try {
+            return await context.prisma.deleteChoice({id});
+        } catch {
+        }
+    });
+    return args.ids;
+}
+
+function deleteChoiceByContent(parent, args, context, info) {
+    return context.prisma.deleteManyChoices({content: args.content});
 }
 
 function deleteOption(parent, args, context, info) {
-    return context.prisma.deleteOption({ id: args.id })
+    return context.prisma.deleteOption({id: args.id})
 }
 
 function deleteOptions(parent, args, context, info) {
-    args.ids.forEach(async (id) => await context.prisma.deleteOption({ id }));
+    args.ids.forEach(async (id) => {
+        try {
+            return await context.prisma.deleteOption({id});
+        } catch {
+        }
+    });
     return args.ids;
+}
+
+function deleteOptionByDescription(parent, args, context, info) {
+    return context.prisma.deleteManyOptions({description: args.description});
 }
 
 module.exports = {
@@ -125,6 +148,9 @@ module.exports = {
     updateChoice,
     updateOption,
     deleteChoice,
+    deleteChoiceByContent,
+    deleteChoices,
     deleteOption,
+    deleteOptionByDescription,
     deleteOptions,
 };

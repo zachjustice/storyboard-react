@@ -11,11 +11,18 @@ type Mutation {
     updateOption(id: String!, description: String, parentChoiceId: String, nextChoiceId: String): Option!
 
     deleteChoice(id: String!): Choice!
+    deleteChoiceByContent(content: String!): BatchQuery!
     deleteOption(id: String!): Option!
+    deleteOptionByDescription(description: String!): BatchQuery!
     deleteOptions(ids: [String!]!): [String!]
+    deleteChoices(ids: [String!]!): [String!]
     # user signup, login
     signup(email: String!, password: String!, name: String!): AuthPayload
     login(email: String!, password: String!): AuthPayload
+}
+
+type BatchQuery {
+    count: Int
 }
 
 type AuthPayload {
