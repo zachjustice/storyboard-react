@@ -7,11 +7,11 @@ import {createOption, getChoice} from "../services/Choices.service";
 
 const SelectedOptionsStates = {
     selected: 'selected',
-    hovered: 'hovered'
+    hovered: 'hovered',
 };
 
 const mapDispatchToProps = dispatch => ({
-    addChoice: (choiceIndex, choice)  => dispatch(addChoice(choiceIndex, choice)),
+    addChoice: (choiceIndex, choice) => dispatch(addChoice(choiceIndex, choice)),
     createChoice: (choiceIndex, parentOptionId) => dispatch(createChoice(choiceIndex, parentOptionId)),
     fetchingChoice: (choiceIndex) => dispatch(fetchingChoice(choiceIndex)),
     undoChoiceSelection: (choiceIndex) => dispatch(undoChoiceSelection(choiceIndex)),
@@ -21,7 +21,9 @@ export class Choice extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isCurrentChoice: true
+            selectedOptionIndex: -1,
+            selectedOptionState: null,
+            focusNewOptionInput: false,
         }
     }
 
@@ -41,33 +43,59 @@ export class Choice extends React.Component {
 
                 </div>
                 <OptionList
-                    isCurrentChoice={this.state.isCurrentChoice}
+                    isCurrentChoice={this.props.isCurrentChoice}
                     selectOption={(option) => this.selectOption(this.props.choiceIndex, option)}
                     createOption={(optionDescription) => this.createOption(this.props.choiceIndex, this.props.choice, optionDescription)}
                     selectedOptionIndex={this.state.selectedOptionIndex}
                     selectedOptionState={this.state.selectedOptionState}
-                    options={this.props.choice.options} />
+                    focusNewOptionInput={this.state.focusNewOptionInput}
+                    options={this.props.choice.options}/>
             </div>
         );
     }
 
-    componentWillMount() {
-        document.addEventListener('keydown', this.onKeyDown);
+    componentDidMount() {
+        this.addListener();
+    }
+
+    componentWillUnmount() {
+        this.removeListener()
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props.isCurrentChoice) {
-            document.addEventListener('keydown', this.onKeyDown);
+            this.addListener();
         } else {
-            document.removeEventListener('keydown', this.onKeyDown);
+            this.removeListener()
+        }
+
+        if (!prevProps.isCurrentChoice && this.props.isCurrentChoice) {
+            this.setState({selectedOptionState: SelectedOptionsStates.hovered})
         }
     }
 
+    addListener() {
+        document.addEventListener('keydown', this.onKeyDown);
+    }
+
+    removeListener() {
+        document.removeEventListener('keydown', this.onKeyDown);
+    }
+
     onKeyDown = async (event) => {
+        event.preventDefault();
         const activeElement = document.activeElement;
-        if (activeElement.localName === 'input') {
+        if (activeElement.localName === 'input' && this.state.focusNewOptionInput) {
             if (event.keyCode === Keys.escape) {
+                // remove focus from the new-option input.
+                // reset the selectedOptionIndex so that when the user hits up- or down-arrow it starts at the
+                // last/first element, respectively.
                 activeElement.blur();
+                this.setState({
+                    focusNewOptionInput: false,
+                    selectedOptionIndex: -1,
+                    selectedOptionState: null
+                });
             }
             return;
         }
@@ -75,11 +103,9 @@ export class Choice extends React.Component {
         switch (event.keyCode) {
             case Keys.up:
                 this.moveHoveredOption(-1);
-                event.preventDefault();
                 break;
             case Keys.down:
                 this.moveHoveredOption(1);
-                event.preventDefault();
                 break;
             case Keys.backspace:
                 this.props.undoChoiceSelection(this.props.choiceIndex);
@@ -93,9 +119,15 @@ export class Choice extends React.Component {
             case Keys.six:
             case Keys.eight:
             case Keys.nine:
-                let availableOptions = (this.props.choice.options || []);
-                if ((event.keyCode - Keys.one) < availableOptions.length) {
-                    this.selectOption(this.props.choiceIndex, this.props.choice.options[event.keyCode - Keys.one]);
+                const availableOptions = (this.props.choice.options || []);
+                const optionIndex = event.keyCode - Keys.one;
+                if (optionIndex < availableOptions.length) {
+                    this.selectOption(this.props.choiceIndex, this.props.choice.options[optionIndex]);
+                    this.setState({focusNewOptionInput: false});
+                } else if (optionIndex < 3) {
+                    // focus new-option input if its available
+                    this.setState({selectedOptionIndex: optionIndex, selectedOptionState: null});
+                    this.setState({focusNewOptionInput: true});
                 }
                 break;
             case Keys.enter:
@@ -136,14 +168,13 @@ export class Choice extends React.Component {
 
     moveHoveredOption(delta) {
         let availableOptions = (this.props.choice.options || []);
-        let currOptionIndex;
-        if (this.state.selectedOptionIndex === null) {
-            currOptionIndex = 0;
-        } else {
-            currOptionIndex = (this.state.selectedOptionIndex + delta) % availableOptions.length;
-        }
-
-        if (currOptionIndex === -1) currOptionIndex = availableOptions.length - 1;
+        let currOptionIndex = (this.state.selectedOptionIndex + delta) % availableOptions.length;
+        if (currOptionIndex < 0) currOptionIndex = availableOptions.length - 1;
+        // TODO:
+        // if next option is new-option input, focus new option input
+        // if on new-option input and input is empty, move to next option
+        // if not new-option input and input is not empty, flash text red (?)
+        // if currOptionIndex is greater than three, move to next option
 
         this.setState({
             selectedOptionIndex: currOptionIndex,

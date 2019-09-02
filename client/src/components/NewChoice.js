@@ -49,16 +49,24 @@ class NewChoice extends React.Component {
         )
     }
 
-    componentWillMount() {
-        document.addEventListener('keydown', this.onKeyDown);
+    componentDidMount() {
+        this.addListener();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props.isCurrentChoice) {
-            document.addEventListener('keydown', this.onKeyDown);
+            this.addListener();
         } else {
-            document.removeEventListener('keydown', this.onKeyDown);
+            this.removeListener()
         }
+    }
+
+    addListener() {
+        document.addEventListener('keydown', this.onKeyDown);
+    }
+
+    removeListener() {
+        document.removeEventListener('keydown', this.onKeyDown);
     }
 
     onKeyDown = async (event) => {

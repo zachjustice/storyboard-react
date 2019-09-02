@@ -36,6 +36,7 @@ class ConnectedApp extends Component {
                                parentOptionId={this.props.createChoice.parentOptionId}/>
                 )}
                 {this.props.fetchingChoice && '...'}
+                <div id="me"></div>
             </div>
         );
     }

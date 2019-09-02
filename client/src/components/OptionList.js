@@ -18,8 +18,9 @@ class OptionList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            focus: true,
             optionDescription: '',
-        }
+        };
     }
 
     render() {
@@ -36,8 +37,10 @@ class OptionList extends React.Component {
                 {this.props.isCurrentChoice && (!this.props.options || this.props.options.length < 3) && (
                     <li>
                         <input className='new-option'
-                               placeholder="Continue the story..."
+                               placeholder='Continue the story...'
                                value={this.state.optionDescription}
+                               autoFocus={this.props.options.length === 0}
+                               ref={this.newOptionInputFocus.ref}
                                onChange={evt => this.onOptionDescriptionChange(evt)}>
                         </input>
                     </li>
@@ -56,6 +59,28 @@ class OptionList extends React.Component {
             </ol>
         )
     }
+
+    componentDidMount() {
+        this.newOptionInputFocus = this.useFocus();
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        this.newOptionInputFocus.setFocus(this.props.focusNewOptionInput);
+    }
+
+    useFocus = () => {
+        const ref = React.createRef();
+        const setFocus = (isFocused) => {
+            if (!ref.current) return;
+            if (isFocused) {
+                ref.current.focus();
+            } else {
+                ref.current.blur();
+            }
+        };
+
+        return { setFocus, ref }
+    };
 
     createOption = async (optionDescription) => {
         this.setState({submittingNewOption: true});
