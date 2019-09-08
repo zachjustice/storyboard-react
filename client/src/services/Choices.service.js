@@ -117,7 +117,7 @@ export async function updateOption(parentChoiceId, {id, description}) {
             const updatedChoice = {
                 choice: {
                     ...choice,
-                    options: this.props.choice.options.map(oldOption => {
+                    options: choice.options.map(oldOption => {
                         if (oldOption.id === updateOption.id) return updateOption;
                         return oldOption;
                     })

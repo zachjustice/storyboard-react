@@ -50,14 +50,13 @@ class Option extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log('componentDidUpdate.focusInput', this.props.focus)
+        console.log('componentDidUpdate.focusInput', this.props.focus);
         this.input.setFocus(this.props.focus);
     }
 
     onKeyDown = async (event) => {
-        console.log('event', event);
        if (document.activeElement.localName === 'input' && event.key === Keys.enter)  {
-           this.submit(this.state.optionDescription);
+           this.submit(this.state.value);
        }
     };
 

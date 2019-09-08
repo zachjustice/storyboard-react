@@ -3,6 +3,7 @@ import {addChoice} from "../actions/ActionCreators";
 import {connect} from "react-redux";
 import OptionList from "./OptionList";
 import {createOption, updateOption} from "../services/Choices.service";
+import {Keys} from "../util/Keys";
 
 const mapDispatchToProps = dispatch => ({
     addChoice: (choiceIndex, choice) => dispatch(addChoice(choiceIndex, choice)),
@@ -11,6 +12,7 @@ const mapDispatchToProps = dispatch => ({
 export class Choice extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {};
     }
 
     render() {
@@ -55,7 +57,10 @@ export class Choice extends React.Component {
         }
     }
 
-    onKeyDown =() => {
+    onKeyDown = (event) => {
+        if (event.key === Keys.E) {
+            console.log('Edit choice content');
+        }
     };
 
     addListener() {

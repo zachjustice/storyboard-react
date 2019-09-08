@@ -1,7 +1,7 @@
 import React from 'react';
 import Option from "./Option";
 import OptionInput from "./OptionInput";
-import {addChoice, createChoice, fetchingChoice, createUpdateOptionAction, undoChoiceSelection} from "../actions/ActionCreators";
+import {addChoice, createChoice, fetchingChoice, undoChoiceSelection} from "../actions/ActionCreators";
 import {connect} from "react-redux";
 import {getChoice} from "../services/Choices.service";
 import {Keys} from "../util/Keys";
@@ -26,7 +26,7 @@ class OptionList extends React.Component {
             optionDescription: '',
             selectedOptionIndex: -1,
             selectedOptionState: null,
-            focusNewOptionInput: false
+            focusOptionInput: false
         };
     }
 
@@ -37,7 +37,7 @@ class OptionList extends React.Component {
                     if (this.state.editingOptionIndex === index) {
                         return (<OptionInput initialValue={option.description}
                                              onClick={this.onClick}
-                                             focus={this.state.focusNewOptionInput}
+                                             focus={this.state.focusOptionInput}
                                              autofocus={true}
                                              submit={(description) => this.submitOption({...option, description})}
                                              key={'option-' + option.id}/>)
@@ -53,7 +53,7 @@ class OptionList extends React.Component {
                 {this.props.isCurrentChoice && (!this.props.options || this.props.options.length < 3) && (
                     <OptionInput initialValue={''}
                                  onClick={this.onClick}
-                                 focus={this.state.focusNewOptionInput}
+                                 focus={this.state.focusOptionInput}
                                  autofocus={this.props.options.length === 0}
                                  submit={this.createOption}/>
                 )}
@@ -93,16 +93,18 @@ class OptionList extends React.Component {
         // reset the selectedOptionIndex so that when the user is no longer using the input, and hits up- or down-arrow
         // it starts at the last/first element, respectively.
         // TODO if event is new-option-input
-        this.setState({selectedOptionIndex: -1, selectedOptionState: null, focusNewOptionInput: true});
+        this.setState({selectedOptionIndex: -1, selectedOptionState: null, focusOptionInput: true});
     };
 
     onKeyDown = async (event) => {
-        const activeElement = document.activeElement;
         console.log('optionlist', event);
-        if (activeElement.localName === 'input') {
-            console.log('handleKeyDownForInput')
-            await this.handleKeyDownForInput(event);
+        if (event.target.localName === 'input') {
+            if (event.key === Keys.escape) {
+                console.log('handleKeyDownForInput');
+                this.setState({focusOptionInput: false});
+            }
         } else {
+            console.log('handleKeyDownDefault');
             await this.handleKeyDownDefault(event);
         }
     };
@@ -118,9 +120,11 @@ class OptionList extends React.Component {
                 break;
             case Keys.backspace:
                 if (this.props.choiceIndex > 0) {
+                    console.log('backspace if');
                     this.props.undoChoiceSelection(this.props.choiceIndex);
                     this.removeListener()
                 } else {
+                    console.log('backspace else');
                     this.setState({selectedOptionIndex: -1, selectedOptionState: null});
                 }
                 break;
@@ -136,10 +140,14 @@ class OptionList extends React.Component {
                 const optionIndex = Number(event.key) - Number(Keys.one);
                 if (optionIndex < availableOptions.length) {
                     await this.selectOption(this.props.choiceIndex, this.props.options[optionIndex]);
-                    this.setState({focusNewOptionInput: false});
+                    this.setState({focusOptionInput: false});
                 } else if (optionIndex < 3) {
                     // focus new-option input if its available
-                    this.setState({selectedOptionIndex: optionIndex, selectedOptionState: null, focusNewOptionInput: true});
+                    this.setState({
+                        selectedOptionIndex: optionIndex,
+                        selectedOptionState: null,
+                        focusOptionInput: true
+                    });
                 }
                 break;
             case Keys.enter:
@@ -147,18 +155,7 @@ class OptionList extends React.Component {
                 break;
             case Keys.e:
                 console.log('e', this.state.selectedOptionIndex);
-                this.setState({editingOptionIndex: this.state.selectedOptionIndex});
-                break;
-            default:
-                break;
-        }
-    };
-
-    handleKeyDownForInput = async (event) => {
-        switch (event.key) {
-            case Keys.escape:
-                // remove focus from the new-option input.
-                this.setState({focusNewOptionInput: false});
+                this.setState({editingOptionIndex: this.state.selectedOptionIndex, focusOptionInput: true});
                 break;
             default:
                 break;
@@ -204,9 +201,9 @@ class OptionList extends React.Component {
         return this.props.createOption(optionDescription);
     };
 
-    submitOption = async (option)  => {
-        this.props.updateOption(option);
-        this.setState({ editingOptionIndex: -1 });
+    submitOption = async (option) => {
+        await this.props.updateOption(option);
+        this.setState({editingOptionIndex: -1});
     }
 }
 
