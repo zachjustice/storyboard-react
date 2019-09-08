@@ -46,6 +46,10 @@ const updateOptionQuery = gql`
     mutation updateOption($id: String!, $description: String!) {
         updateOption(id: $id, description: $description) {
             id
+            description
+            nextChoice {
+                id
+            }
         }
     }
 `;
@@ -108,6 +112,20 @@ export async function updateOption(parentChoiceId, {id, description}) {
     return await client.mutate({
         mutation: updateOptionQuery,
         variables: {id, description},
+        update: (store, {data: {updateOption}}) => {
+            const {choice} = store.readQuery({query: getChoiceQuery, variables: {id: parentChoiceId}});
+            const updatedChoice = {
+                choice: {
+                    ...choice,
+                    options: this.props.choice.options.map(oldOption => {
+                        if (oldOption.id === updateOption.id) return updateOption;
+                        return oldOption;
+                    })
+                }
+            };
+
+            store.writeQuery({query: getChoiceQuery, variables: {id: parentChoiceId}, data: updatedChoice});
+        }
     }).then(({data: {updateOption}}) => {
         return updateOption
     });
