@@ -2,7 +2,8 @@ import {client} from './GraphQLClient';
 import gql from 'graphql-tag'
 
 export const INITIAL_CHOICE_ID = "cjsv4z9uxo0vg0b794bjfwjvu";
-const createOptionQuery = gql`mutation createOption($parentChoiceId: String!, $optionDescription: String!) {
+const createOptionQuery = gql`
+    mutation createOption($parentChoiceId: String!, $optionDescription: String!) {
         createOption(parentChoiceId: $parentChoiceId, description: $optionDescription) {
             id,
             description,
@@ -13,7 +14,8 @@ const createOptionQuery = gql`mutation createOption($parentChoiceId: String!, $o
         }
     }`;
 
-const createChoiceQuery = gql`mutation createChoice($content: String!, $parentOptionId: String) {
+const createChoiceQuery = gql`
+    mutation createChoice($content: String!, $parentOptionId: String) {
         createChoice(content: $content, parentOptionId: $parentOptionId) {
             id,
             content,
@@ -25,20 +27,28 @@ const createChoiceQuery = gql`mutation createChoice($content: String!, $parentOp
     }`;
 
 const getChoiceQuery = gql`
-        query choice($id: String!) {
-            choice(id: $id) {
+    query choice($id: String!) {
+        choice(id: $id) {
+            id
+            content
+            options {
                 id
-                content
-                options {
+                description
+                nextChoice {
                     id
-                    description
-                    nextChoice {
-                        id
-                    }
                 }
             }
         }
-    `;
+    }
+`;
+
+const updateOptionQuery = gql`
+    mutation updateOption($id: String!, $description: String!) {
+        updateOption(id: $id, description: $description) {
+            id
+        }
+    }
+`;
 
 export async function createChoice(parentOptionId, content) {
     return await client.mutate({
@@ -47,13 +57,13 @@ export async function createChoice(parentOptionId, content) {
             parentOptionId
         },
         mutation: createChoiceQuery,
-        update: (store, { data: { createChoice } }) => {
+        update: (store, {data: {createChoice}}) => {
             console.log('createChoice', createChoice);
             store.writeQuery({
                 query: getChoiceQuery,
-                variables: { id: createChoice.id },
+                variables: {id: createChoice.id},
                 data: {
-                    choice: { ...createChoice }
+                    choice: {...createChoice}
                 },
             })
         }
@@ -70,7 +80,7 @@ export async function createOption(parentChoiceId, optionDescription) {
         },
         mutation: createOptionQuery,
         update: (store, {data: {createOption}}) => {
-            const { choice } = store.readQuery({ query: getChoiceQuery, variables: { id: parentChoiceId }});
+            const {choice} = store.readQuery({query: getChoiceQuery, variables: {id: parentChoiceId}});
             const updatedChoice = {
                 choice: {
                     ...choice,
@@ -78,7 +88,7 @@ export async function createOption(parentChoiceId, optionDescription) {
                 }
             };
 
-            store.writeQuery({ query: getChoiceQuery, variables: { id: parentChoiceId }, data: updatedChoice});
+            store.writeQuery({query: getChoiceQuery, variables: {id: parentChoiceId}, data: updatedChoice});
         }
     }).then(({data}) => {
         return data.createOption;
@@ -88,8 +98,17 @@ export async function createOption(parentChoiceId, optionDescription) {
 export async function getChoice(choiceId) {
     return await client.query({
         query: getChoiceQuery,
-        variables: { id: choiceId },
+        variables: {id: choiceId},
     }).then(response => {
         return response.data.choice;
     }).catch(console.error)
+}
+
+export async function updateOption(parentChoiceId, {id, description}) {
+    return await client.mutate({
+        mutation: updateOptionQuery,
+        variables: {id, description},
+    }).then(({data: {updateOption}}) => {
+        return updateOption
+    });
 }

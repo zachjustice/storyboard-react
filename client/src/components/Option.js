@@ -1,7 +1,6 @@
 import React from 'react';
 
 function Option(props) {
-    const option = props.value || {};
     let spanClass = 'OptionText clickable';
 
     if (props.isHovered) {
@@ -16,8 +15,8 @@ function Option(props) {
     };
 
     return (
-        <li className={spanClass} onClick={() => onClick(option)}>
-            <span>{option.description}</span>
+        <li className={spanClass} onClick={() => onClick(props.option)}>
+            <span>{props.option.description}</span>
         </li>
     )
 }

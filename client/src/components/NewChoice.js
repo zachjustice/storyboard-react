@@ -70,7 +70,7 @@ class NewChoice extends React.Component {
     }
 
     onKeyDown = async (event) => {
-        switch (event.keyCode) {
+        switch (event.key) {
             case Keys.backspace:
                 this.props.undoChoiceSelection(this.props.parentOptionId);
                 document.removeEventListener('keydown', this.onKeyDown);

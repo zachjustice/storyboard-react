@@ -2,7 +2,7 @@ import React from 'react';
 import {addChoice} from "../actions/ActionCreators";
 import {connect} from "react-redux";
 import OptionList from "./OptionList";
-import {createOption} from "../services/Choices.service";
+import {createOption, updateOption} from "../services/Choices.service";
 
 const mapDispatchToProps = dispatch => ({
     addChoice: (choiceIndex, choice) => dispatch(addChoice(choiceIndex, choice)),
@@ -29,9 +29,11 @@ export class Choice extends React.Component {
 
                 </div>
                 <OptionList
+                    choiceId={this.props.choice.id}
                     choiceIndex={this.props.choiceIndex}
                     isCurrentChoice={this.props.isCurrentChoice}
                     createOption={this.createOption}
+                    updateOption={this.updateOption}
                     options={this.props.choice.options}/>
             </div>
         );
@@ -66,12 +68,25 @@ export class Choice extends React.Component {
 
     createOption = async (optionDescription) => {
         const option = await createOption(this.props.choice.id, optionDescription);
-        const newChoice = {
+        const updatedChoice = {
             ...this.props.choice,
             options: this.props.choice.options.concat(option)
         };
-        this.props.addChoice(this.props.choiceIndex - 1, newChoice);
-    }
+        this.props.addChoice(this.props.choiceIndex - 1, updatedChoice);
+        return updatedChoice;
+    };
+
+    updateOption = async (updatedOption) => {
+        await updateOption(this.props.choice.id, updatedOption);
+        const updatedChoice = {
+            ...this.props.choice,
+            options: this.props.choice.options.map(oldOption => {
+                if (oldOption.id === updatedOption.id) return updatedOption;
+                return oldOption;
+            })
+        };
+        this.props.addChoice(this.props.choiceIndex - 1, updatedChoice);
+    };
 }
 
 export default connect(null, mapDispatchToProps)(Choice);

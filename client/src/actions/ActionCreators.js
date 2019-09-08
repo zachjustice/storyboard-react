@@ -21,3 +21,8 @@ export const undoChoiceSelection = (choiceIndex) => ({
     type: ActionTypes.undoChoiceSelection,
     choiceIndex,
 });
+
+export const createUpdateOptionAction = (option) => ({
+    type: ActionTypes.updateOption,
+    option,
+});

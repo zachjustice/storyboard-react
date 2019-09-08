@@ -1,6 +1,7 @@
 import React from 'react';
 import Option from "./Option";
-import {addChoice, createChoice, fetchingChoice, undoChoiceSelection} from "../actions/ActionCreators";
+import OptionInput from "./OptionInput";
+import {addChoice, createChoice, fetchingChoice, createUpdateOptionAction, undoChoiceSelection} from "../actions/ActionCreators";
 import {connect} from "react-redux";
 import {getChoice} from "../services/Choices.service";
 import {Keys} from "../util/Keys";
@@ -21,48 +22,40 @@ class OptionList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            editingOptionIndex: -1,
             optionDescription: '',
             selectedOptionIndex: -1,
             selectedOptionState: null,
-            submittingNewOption: false,
+            focusNewOptionInput: false
         };
-
-        this.newOptionInputFocus = this.useFocus();
     }
 
     render() {
         return (
             <ol className='option-list'>
-                {(this.props.options || []).map((option, index) => (
-                    <Option value={option}
-                            selectOption={(option) => this.selectOption(this.props.choiceIndex, option)}
-                            isSelected={this.state.selectedOptionIndex === index && this.state.selectedOptionState === SelectedOptionsStates.selected}
-                            isHovered={this.state.selectedOptionIndex === index && this.state.selectedOptionState === SelectedOptionsStates.hovered}
-                            key={'option-' + option.id}/>
-                ))}
+                {(this.props.options || []).map((option, index) => {
+                    if (this.state.editingOptionIndex === index) {
+                        return (<OptionInput initialValue={option.description}
+                                             onClick={this.onClick}
+                                             focus={this.state.focusNewOptionInput}
+                                             autofocus={true}
+                                             submit={(description) => this.submitOption({...option, description})}
+                                             key={'option-' + option.id}/>)
+                    } else {
+                        return (<Option option={option}
+                                        selectOption={(option) => this.selectOption(this.props.choiceIndex, option)}
+                                        isSelected={this.state.selectedOptionIndex === index && this.state.selectedOptionState === SelectedOptionsStates.selected}
+                                        isHovered={this.state.selectedOptionIndex === index && this.state.selectedOptionState === SelectedOptionsStates.hovered}
+                                        key={'option-' + option.id}/>)
+                    }
+                })}
 
                 {this.props.isCurrentChoice && (!this.props.options || this.props.options.length < 3) && (
-                    <li>
-                        <input className='new-option'
-                               placeholder='Continue the story...'
-                               value={this.state.optionDescription}
-                               autoFocus={this.props.options.length === 0}
-                               onClick={this.onClick}
-                               onChange={evt => this.setOptionDescription(evt.target.value)}
-                               ref={this.newOptionInputFocus.ref}>
-                        </input>
-                    </li>
-                )}
-
-                {this.state.optionDescription && !this.state.submittingNewOption && (
-                    <span className="clickable"
-                          onClick={() => this.createOption(this.state.optionDescription)}>
-                            Submit
-                    </span>
-                )}
-
-                {(this.state.optionDescription && this.state.submittingNewOption &&
-                    <span>...</span>
+                    <OptionInput initialValue={''}
+                                 onClick={this.onClick}
+                                 focus={this.state.focusNewOptionInput}
+                                 autofocus={this.props.options.length === 0}
+                                 submit={this.createOption}/>
                 )}
             </ol>
         )
@@ -96,30 +89,18 @@ class OptionList extends React.Component {
         document.removeEventListener('keydown', this.onKeyDown);
     }
 
-    useFocus = () => {
-        const ref = React.createRef();
-        const setFocus = (isFocused) => {
-            if (!ref.current) return;
-            if (isFocused) {
-                ref.current.focus();
-            } else {
-                ref.current.blur();
-            }
-        };
-
-        return { setFocus, ref }
-    };
-
-    onClick = () => {
+    onClick = (event) => {
         // reset the selectedOptionIndex so that when the user is no longer using the input, and hits up- or down-arrow
         // it starts at the last/first element, respectively.
-        this.setState({selectedOptionIndex: -1, selectedOptionState: null});
-        this.newOptionInputFocus.setFocus(true);
+        // TODO if event is new-option-input
+        this.setState({selectedOptionIndex: -1, selectedOptionState: null, focusNewOptionInput: true});
     };
 
     onKeyDown = async (event) => {
         const activeElement = document.activeElement;
+        console.log('optionlist', event);
         if (activeElement.localName === 'input') {
+            console.log('handleKeyDownForInput')
             await this.handleKeyDownForInput(event);
         } else {
             await this.handleKeyDownDefault(event);
@@ -127,17 +108,15 @@ class OptionList extends React.Component {
     };
 
     handleKeyDownDefault = async (event) => {
-        switch (event.keyCode) {
+        event.preventDefault();
+        switch (event.key) {
             case Keys.up:
-                event.preventDefault();
-                this.moveHoveredOption(-1);
+                this.moveHoveredOption(-1, this.props.options, this.state.selectedOptionIndex);
                 break;
             case Keys.down:
-                event.preventDefault();
-                this.moveHoveredOption(1);
+                this.moveHoveredOption(1, this.props.options, this.state.selectedOptionIndex);
                 break;
             case Keys.backspace:
-                event.preventDefault();
                 if (this.props.choiceIndex > 0) {
                     this.props.undoChoiceSelection(this.props.choiceIndex);
                     this.removeEventListener()
@@ -153,22 +132,22 @@ class OptionList extends React.Component {
             case Keys.six:
             case Keys.eight:
             case Keys.nine:
-                event.preventDefault();
                 const availableOptions = (this.props.options || []);
-                const optionIndex = event.keyCode - Keys.one;
+                const optionIndex = Number(event.key) - Number(Keys.one);
                 if (optionIndex < availableOptions.length) {
                     await this.selectOption(this.props.choiceIndex, this.props.options[optionIndex]);
-                    this.newOptionInputFocus.setFocus(false)
+                    this.setState({focusNewOptionInput: false});
                 } else if (optionIndex < 3) {
                     // focus new-option input if its available
-                    console.log('blur');
-                    this.setState({selectedOptionIndex: optionIndex, selectedOptionState: null});
-                    this.newOptionInputFocus.setFocus(true)
+                    this.setState({selectedOptionIndex: optionIndex, selectedOptionState: null, focusNewOptionInput: true});
                 }
                 break;
             case Keys.enter:
-                event.preventDefault();
                 this.selectOption(this.props.choiceIndex, this.props.options[this.state.selectedOptionIndex]);
+                break;
+            case Keys.e:
+                console.log('e', this.state.selectedOptionIndex);
+                this.setState({editingOptionIndex: this.state.selectedOptionIndex});
                 break;
             default:
                 break;
@@ -176,22 +155,19 @@ class OptionList extends React.Component {
     };
 
     handleKeyDownForInput = async (event) => {
-        switch (event.keyCode) {
+        switch (event.key) {
             case Keys.escape:
                 // remove focus from the new-option input.
-                this.newOptionInputFocus.setFocus(false);
-                break;
-            case Keys.enter:
-                this.createOption(this.state.optionDescription);
+                this.setState({focusNewOptionInput: false});
                 break;
             default:
                 break;
         }
     };
 
-    moveHoveredOption = (delta) => {
-        let availableOptions = (this.props.options || []);
-        let currOptionIndex = (this.state.selectedOptionIndex + delta) % availableOptions.length;
+    moveHoveredOption = (delta, options, selectedOptionIndex) => {
+        let availableOptions = (options || []);
+        let currOptionIndex = (selectedOptionIndex + delta) % availableOptions.length;
         if (currOptionIndex < 0) currOptionIndex = availableOptions.length - 1;
         // TODO:
         // if next option is new-option input, focus new option input
@@ -224,15 +200,14 @@ class OptionList extends React.Component {
         }
     };
 
-    setOptionDescription = (optionDescription) => {
-        this.setState({optionDescription});
+    createOption = async (optionDescription) => {
+        return this.props.createOption(optionDescription);
     };
 
-    createOption = async (optionDescription) => {
-        this.setState({submittingNewOption: true});
-        await this.props.createOption(optionDescription);
-        this.setState({optionDescription: '', submittingNewOption: false});
-    };
+    submitOption = async (option)  => {
+        this.props.updateOption(option);
+        this.setState({ editingOptionIndex: -1 });
+    }
 }
 
 export default connect(null, mapDispatchToProps)(OptionList);
