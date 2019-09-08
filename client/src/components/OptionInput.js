@@ -55,8 +55,12 @@ class Option extends React.Component {
     }
 
     onKeyDown = async (event) => {
-       if (document.activeElement.localName === 'input' && event.key === Keys.enter)  {
-           this.submit(this.state.value);
+       if (document.activeElement.localName === 'input') {
+           if (event.key === Keys.enter) {
+               this.submit(this.state.value);
+           } else if (event.key === Keys.escape) {
+               this.setState({value: ''})
+           }
        }
     };
 

@@ -101,7 +101,7 @@ class OptionList extends React.Component {
         if (event.target.localName === 'input') {
             if (event.key === Keys.escape) {
                 console.log('handleKeyDownForInput');
-                this.setState({focusOptionInput: false});
+                this.setState({editingOptionIndex: null, focusOptionInput: false});
             }
         } else {
             console.log('handleKeyDownDefault');
