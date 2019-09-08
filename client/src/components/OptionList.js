@@ -192,12 +192,17 @@ class OptionList extends React.Component {
             selectedOptionIndex: this.props.options.findIndex(o => o.id === option.id),
             selectedOptionState: SelectedOptionsStates.selected,
             isCurrentChoice: false,
+            lastRequestedChoiceId: option.nextChoice.id,
         });
 
         if (option.nextChoice && option.nextChoice.id) {
             this.props.fetchingChoice(choiceIndex);
             const nextChoice = await getChoice(option.nextChoice.id);
-            return this.props.addChoice(choiceIndex, nextChoice);
+            // make sure the user didn't click a new option in the time it took to fetch the choice
+            if (this.state.lastRequestedChoiceId === nextChoice.id) {
+                // it'd be cleaner to use rxjs/a subscription/observable, but i'm lazy and this is easy.
+                return this.props.addChoice(choiceIndex, nextChoice);
+            }
         } else {
             return this.props.createChoice(choiceIndex, option.id);
         }
