@@ -26,7 +26,8 @@ class OptionList extends React.Component {
             optionDescription: '',
             selectedOptionIndex: -1,
             selectedOptionState: null,
-            focusOptionInput: false
+            // focus new-option-input if there are no options
+            focusOptionInput: props.options.length === 0,
         };
     }
 
@@ -39,7 +40,7 @@ class OptionList extends React.Component {
                                              onClick={this.onClick}
                                              focus={this.state.focusOptionInput}
                                              autofocus={true}
-                                             submit={(description) => this.submitOption({...option, description})}
+                                             submit={(description) => this.submitUpdatedOption({...option, description})}
                                              key={'option-' + option.id}/>)
                     } else {
                         return (<Option option={option}
@@ -201,7 +202,7 @@ class OptionList extends React.Component {
         return this.props.createOption(optionDescription);
     };
 
-    submitOption = async (option) => {
+    submitUpdatedOption = async (option) => {
         await this.props.updateOption(option);
         this.setState({updatingOptionIndex: -1});
     }

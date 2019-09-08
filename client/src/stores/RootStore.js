@@ -6,7 +6,6 @@ import {addChoice} from "../actions/ActionCreators";
 const store = createStore(rootReducer);
 
 getChoice(INITIAL_CHOICE_ID).then(choice => {
-    console.log('get initial choice', choice);
     store.dispatch(addChoice(0, choice));
 });
 

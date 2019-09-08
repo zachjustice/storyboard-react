@@ -15,7 +15,6 @@ class ConnectedApp extends Component {
     }
 
     render() {
-        // console.log('App.render', this.props);
         if (!this.props || !this.props.choices || !this.props.choices.length) return 'Fetching...';
         if (this.state.error) return 'Error!';
 

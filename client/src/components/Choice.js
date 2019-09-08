@@ -70,6 +70,8 @@ export class Choice extends React.Component {
     }
 
     onKeyDown = (event) => {
+        if (event.target.localName === 'input') return;
+
         if (event.key === Keys.E) {
             console.log('Edit choice content');
             this.setState({updatingChoice: true})
@@ -93,7 +95,7 @@ export class Choice extends React.Component {
             options: this.props.choice.options.concat(option)
         };
         this.props.addChoice(this.props.choiceIndex - 1, updatedChoice);
-        return updatedChoice;
+        return option;
     };
 
     updateOption = async (updatedOption) => {
@@ -106,12 +108,14 @@ export class Choice extends React.Component {
             })
         };
         this.props.addChoice(this.props.choiceIndex - 1, updatedChoice);
+        return updatedOption;
     };
 
     submitChoice = async (updatedChoice) => {
         await updateChoice(updatedChoice);
         this.props.addChoice(this.props.choiceIndex - 1, updatedChoice);
-        this.setState({updatingChoice: false})
+        this.setState({updatingChoice: false});
+        return updatedChoice;
     }
 }
 

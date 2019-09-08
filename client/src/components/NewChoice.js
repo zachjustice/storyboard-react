@@ -29,6 +29,7 @@ class NewChoice extends React.Component {
                     </div>
                     <input className='new-choice'
                            placeholder="What's next...?"
+                           autoFocus={true}
                            onChange={this.updateChoiceContent}>
                     </input>
                 </div>
@@ -53,12 +54,8 @@ class NewChoice extends React.Component {
         this.addListener();
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.props.isCurrentChoice) {
-            this.addListener();
-        } else {
-            this.removeListener()
-        }
+    componentWillUnmount() {
+        this.removeListener();
     }
 
     addListener() {
@@ -71,12 +68,12 @@ class NewChoice extends React.Component {
 
     onKeyDown = async (event) => {
         switch (event.key) {
-            case Keys.backspace:
+            case Keys.escape:
                 this.props.undoChoiceSelection(this.props.parentOptionId);
-                document.removeEventListener('keydown', this.onKeyDown);
+                this.removeListener();
                 break;
             case Keys.enter:
-                this.submit(this.props.parentOptionId, this.state.choiceContent);
+                this.submit(this.props.choiceIndex, this.props.parentOptionId, this.state.choiceContent);
                 break;
             default:
                 return;
