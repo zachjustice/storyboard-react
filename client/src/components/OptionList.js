@@ -119,7 +119,7 @@ class OptionList extends React.Component {
             case Keys.backspace:
                 if (this.props.choiceIndex > 0) {
                     this.props.undoChoiceSelection(this.props.choiceIndex);
-                    this.removeEventListener()
+                    this.removeListener()
                 } else {
                     this.setState({selectedOptionIndex: -1, selectedOptionState: null});
                 }
