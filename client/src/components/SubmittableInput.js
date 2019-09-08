@@ -1,14 +1,14 @@
 import React from 'react';
 import {Keys} from "../util/Keys";
 
-class Option extends React.Component {
+class SubmittableInput extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             value: props.initialValue,
         };
 
-        this.id = 'new-option-' + (Math.random()*1000000).toFixed(0);
+        this.id = 'submittable-input-' + (Math.random()*1000000).toFixed(0);
         this.input = this.useFocus();
     }
 
@@ -16,7 +16,7 @@ class Option extends React.Component {
         return (
             <li>
                 <input id={this.id}
-                       className='new-option'
+                       className='submittable-input'
                        placeholder='Continue the story...'
                        value={this.state.value}
                        autoFocus={this.props.autofocus}

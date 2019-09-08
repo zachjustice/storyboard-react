@@ -1,6 +1,6 @@
 import React from 'react';
 import Option from "./Option";
-import OptionInput from "./OptionInput";
+import SubmittableInput from "./SubmittableInput";
 import {addChoice, createChoice, fetchingChoice, undoChoiceSelection} from "../actions/ActionCreators";
 import {connect} from "react-redux";
 import {getChoice} from "../services/Choices.service";
@@ -35,7 +35,7 @@ class OptionList extends React.Component {
             <ol className='option-list'>
                 {(this.props.options || []).map((option, index) => {
                     if (this.state.editingOptionIndex === index) {
-                        return (<OptionInput initialValue={option.description}
+                        return (<SubmittableInput initialValue={option.description}
                                              onClick={this.onClick}
                                              focus={this.state.focusOptionInput}
                                              autofocus={true}
@@ -51,7 +51,7 @@ class OptionList extends React.Component {
                 })}
 
                 {this.props.isCurrentChoice && (!this.props.options || this.props.options.length < 3) && (
-                    <OptionInput initialValue={''}
+                    <SubmittableInput initialValue={''}
                                  onClick={this.onClick}
                                  focus={this.state.focusOptionInput}
                                  autofocus={this.props.options.length === 0}
