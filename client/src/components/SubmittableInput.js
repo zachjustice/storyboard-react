@@ -84,4 +84,4 @@ class SubmittableInput extends React.Component {
     }
 }
 
-export default Option;
+export default SubmittableInput;

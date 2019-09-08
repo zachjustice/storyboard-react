@@ -42,6 +42,15 @@ const getChoiceQuery = gql`
     }
 `;
 
+const updateChoiceQuery = gql`
+    mutation updateChoice($id: String!, $content: String!) {
+        updateChoice(id: $id, content: $content) {
+            id
+            content
+        }
+    }
+`;
+
 const updateOptionQuery = gql`
     mutation updateOption($id: String!, $description: String!) {
         updateOption(id: $id, description: $description) {
@@ -106,6 +115,26 @@ export async function getChoice(choiceId) {
     }).then(response => {
         return response.data.choice;
     }).catch(console.error)
+}
+
+export async function updateChoice({id, content}) {
+    return await client.mutate({
+        mutation: updateChoiceQuery,
+        variables: {id, content},
+        update: (store, {data: {updateChoice}}) => {
+            const {choice} = store.readQuery({query: getChoiceQuery, variables: {id}});
+            const updatedChoice = {
+                choice: {
+                    ...choice,
+                    content: updateChoice.content
+                }
+            };
+
+            store.writeQuery({query: getChoiceQuery, variables: {id}, data: updatedChoice});
+        }
+    }).then(({data: {updateChoice}}) => {
+        return updateChoice
+    });
 }
 
 export async function updateOption(parentChoiceId, {id, description}) {

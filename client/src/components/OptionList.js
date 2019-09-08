@@ -22,7 +22,7 @@ class OptionList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            editingOptionIndex: -1,
+            updatingOptionIndex: -1,
             optionDescription: '',
             selectedOptionIndex: -1,
             selectedOptionState: null,
@@ -34,7 +34,7 @@ class OptionList extends React.Component {
         return (
             <ol className='option-list'>
                 {(this.props.options || []).map((option, index) => {
-                    if (this.state.editingOptionIndex === index) {
+                    if (this.state.updatingOptionIndex === index) {
                         return (<SubmittableInput initialValue={option.description}
                                              onClick={this.onClick}
                                              focus={this.state.focusOptionInput}
@@ -101,7 +101,7 @@ class OptionList extends React.Component {
         if (event.target.localName === 'input') {
             if (event.key === Keys.escape) {
                 console.log('handleKeyDownForInput');
-                this.setState({editingOptionIndex: null, focusOptionInput: false});
+                this.setState({updatingOptionIndex: null, focusOptionInput: false});
             }
         } else {
             console.log('handleKeyDownDefault');
@@ -155,7 +155,7 @@ class OptionList extends React.Component {
                 break;
             case Keys.e:
                 console.log('e', this.state.selectedOptionIndex);
-                this.setState({editingOptionIndex: this.state.selectedOptionIndex, focusOptionInput: true});
+                this.setState({updatingOptionIndex: this.state.selectedOptionIndex, focusOptionInput: true});
                 break;
             default:
                 break;
@@ -203,7 +203,7 @@ class OptionList extends React.Component {
 
     submitOption = async (option) => {
         await this.props.updateOption(option);
-        this.setState({editingOptionIndex: -1});
+        this.setState({updatingOptionIndex: -1});
     }
 }
 

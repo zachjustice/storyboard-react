@@ -1,92 +1,96 @@
 /* base styles */
 body {
-  background: black;
-  color: white;
-  font-family: Courier, monospace;
+    background: black;
+    color: white;
+    font-family: Courier, monospace;
 }
 
 ::-moz-placeholder {
-  color: gray;
-  font-style: italic;
+    color: gray;
+    font-style: italic;
 }
 
 ::-webkit-input-placeholder {
-  color: gray;
-  font-style: italic;
+    color: gray;
+    font-style: italic;
 }
 
 /* components */
 
 .storyboard {
-  width: 75%;
+    width: 75%;
 }
 
 .caret {
-  color: #00ff00;
+    color: #00ff00;
 }
 
 .dir {
-  margin-left: .5rem;
-  color: cyan;
+    margin-left: .5rem;
+    color: cyan;
 }
 
 input {
-  border: none;
-  background: none;
-  font-size: inherit;
-  font-family: Courier, monospace;
-  max-width: 300px;
-  color: white;
+    border: none;
+    background: none;
+    font-size: inherit;
+    font-family: Courier, monospace;
+    max-width: 300px;
+    color: white;
 }
 
 input:focus {
-  font-style: unset;
+    font-style: unset;
 }
 
 .clickable:hover {
-  color: cyan;
-  cursor: pointer;
+    color: cyan;
+    cursor: pointer;
 }
 
 .choice-content {
-  /*color: #00ff00;*/
+    /*color: #00ff00;*/
+}
+
+.choice-content-container li {
+    list-style: none
 }
 
 .option-list {
-  margin-left: 1.5rem;
+    margin-left: 1.5rem;
 }
 
 .is-selected {
-  color: cyan;
-  /*color: #00ff00;*/
+    color: cyan;
+    /*color: #00ff00;*/
 }
 
 /* helpers */
 
 .font-grey {
-  color: lightgrey;
+    color: lightgrey;
 }
 
 .bold {
-  font-weight: 900;
+    font-weight: 900;
 }
 
 .italic {
-  font-style: italic;
+    font-style: italic;
 }
 
 .flex-container {
-  display: flex;
+    display: flex;
 }
 
 .margin-left-1 {
-  margin-left: 1rem;
+    margin-left: 1rem;
 }
 
 .margin-top-1 {
-  margin-top: 1rem;
+    margin-top: 1rem;
 }
 
 .margin-right-0_5 {
-  margin-right: 0.5rem;
+    margin-right: 0.5rem;
 }
