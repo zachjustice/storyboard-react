@@ -70,9 +70,7 @@ export class Choice extends React.Component {
     }
 
     onKeyDown = (event) => {
-        if (event.target.localName === 'input') return;
-
-        if (event.key === Keys.E) {
+        if (event.target.localName !== 'input' && event.key === Keys.E) {
             console.log('Edit choice content');
             this.setState({updatingChoice: true})
         } else if (event.key === Keys.escape) {

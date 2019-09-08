@@ -3,6 +3,7 @@ import {connect} from "react-redux";
 import {addChoice, undoChoiceSelection} from "../actions/ActionCreators";
 import {createChoice} from "../services/Choices.service";
 import {Keys} from "../util/Keys";
+import SubmittableInput from "./SubmittableInput";
 
 const mapDispatchToProps = dispatch => ({
     addChoice: (choiceIndex, choice) => dispatch(addChoice(choiceIndex, choice)),
@@ -12,40 +13,25 @@ const mapDispatchToProps = dispatch => ({
 class NewChoice extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            choiceContent: ''
-        };
+        this.state = {};
     }
 
     render() {
         return (
             <div className='choice'>
-                <div className='flex-container'>
+                <div className='flex-container choice-content-container'>
                     <div>
                         <span className='bold caret'> > </span>
                     </div>
                     <div>
                         <span className='bold dir margin-right-0_5'> ~ </span>
                     </div>
-                    <input className='new-choice'
-                           placeholder="What's next...?"
-                           autoFocus={true}
-                           onChange={this.updateChoiceContent}>
-                    </input>
+                    <SubmittableInput autofocus={true}
+                                      focus={true}
+                                      placeholder="What's next...?"
+                                      submit={(choiceContent) => this.submit(this.props.choiceIndex, this.props.parentOptionId, choiceContent)}
+                                      initialValue={''}/>
                 </div>
-
-                {this.state.choiceContent && !this.state.creatingChoice && (
-                    <ol>
-                        <span className="clickable"
-                              onClick={() => this.submit(this.props.choiceIndex, this.props.parentOptionId, this.state.choiceContent)}>
-                            Submit
-                        </span>
-                    </ol>
-                )}
-
-                {this.state.creatingChoice && (
-                    <ol>...</ol>
-                )}
             </div>
         )
     }
@@ -67,16 +53,9 @@ class NewChoice extends React.Component {
     }
 
     onKeyDown = async (event) => {
-        switch (event.key) {
-            case Keys.escape:
-                this.props.undoChoiceSelection(this.props.parentOptionId);
-                this.removeListener();
-                break;
-            case Keys.enter:
-                this.submit(this.props.choiceIndex, this.props.parentOptionId, this.state.choiceContent);
-                break;
-            default:
-                return;
+        if (event.key === Keys.escape) {
+            this.props.undoChoiceSelection(this.props.parentOptionId);
+            this.removeListener();
         }
     };
 
@@ -87,10 +66,6 @@ class NewChoice extends React.Component {
 
         return this.props.addChoice(choiceIndex, choice);
     };
-
-    updateChoiceContent = (evt) => {
-        this.setState({choiceContent: evt.target.value});
-    }
 }
 
 export default connect(null, mapDispatchToProps)(NewChoice);

@@ -17,7 +17,7 @@ class SubmittableInput extends React.Component {
             <li>
                 <input id={this.id}
                        className='submittable-input'
-                       placeholder='Continue the story...'
+                       placeholder={this.props.placeholder}
                        value={this.state.value}
                        autoFocus={this.props.autofocus}
                        ref={this.input.ref}

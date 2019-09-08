@@ -36,12 +36,16 @@ class OptionList extends React.Component {
             <ol className='option-list'>
                 {(this.props.options || []).map((option, index) => {
                     if (this.state.updatingOptionIndex === index) {
-                        return (<SubmittableInput initialValue={option.description}
-                                             onClick={this.onClick}
-                                             focus={this.state.focusOptionInput}
-                                             autofocus={true}
-                                             submit={(description) => this.submitUpdatedOption({...option, description})}
-                                             key={'option-' + option.id}/>)
+                        return (<SubmittableInput autofocus={true}
+                                                  focus={this.state.focusOptionInput}
+                                                  key={'option-' + option.id}
+                                                  onClick={this.onClick}
+                                                  placeholder='Perhaps something else, then?'
+                                                  submit={(description) => this.submitUpdatedOption({
+                                                      ...option,
+                                                      description
+                                                  })}
+                                                  initialValue={option.description}/>)
                     } else {
                         return (<Option option={option}
                                         selectOption={(option) => this.selectOption(this.props.choiceIndex, option)}
@@ -52,11 +56,12 @@ class OptionList extends React.Component {
                 })}
 
                 {this.props.isCurrentChoice && (!this.props.options || this.props.options.length < 3) && (
-                    <SubmittableInput initialValue={''}
-                                 onClick={this.onClick}
-                                 focus={this.state.focusOptionInput}
-                                 autofocus={this.props.options.length === 0}
-                                 submit={this.createOption}/>
+                    <SubmittableInput autofocus={this.props.options.length === 0}
+                                      focus={this.state.focusOptionInput}
+                                      onClick={this.onClick}
+                                      placeholder='Continue the story...'
+                                      submit={this.createOption}
+                                      initialValue={''}/>
                 )}
             </ol>
         )
