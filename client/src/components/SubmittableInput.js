@@ -80,7 +80,7 @@ class SubmittableInput extends React.Component {
 
     submit = async (value) => {
         this.setState({submitting: true});
-        this.props.submit(value).then(() => this.setState({value: ''}));
+        this.props.submit(value).then(() => this.setState({value: '', submitting: false}));
     }
 }
 

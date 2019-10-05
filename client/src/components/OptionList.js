@@ -55,7 +55,7 @@ class OptionList extends React.Component {
                     }
                 })}
 
-                {this.props.isCurrentChoice && (!this.props.options || this.props.options.length < 3) && (
+                {this.props.isCurrentChoice && this.state.updatingOptionIndex === -1 && (!this.props.options || this.props.options.length < 3) && (
                     <SubmittableInput autofocus={this.props.options.length === 0}
                                       focus={this.state.focusOptionInput}
                                       onClick={this.onClick}
@@ -107,7 +107,7 @@ class OptionList extends React.Component {
         if (event.target.localName === 'input') {
             if (event.key === Keys.escape) {
                 console.log('handleKeyDownForInput');
-                this.setState({updatingOptionIndex: null, focusOptionInput: false});
+                this.setState({updatingOptionIndex: -1, focusOptionInput: false});
             }
         } else {
             console.log('handleKeyDownDefault');
@@ -146,7 +146,6 @@ class OptionList extends React.Component {
                 const optionIndex = Number(event.key) - Number(Keys.one);
                 if (optionIndex < availableOptions.length) {
                     await this.selectOption(this.props.choiceIndex, this.props.options[optionIndex]);
-                    this.setState({focusOptionInput: false});
                 } else if (optionIndex < 3) {
                     // focus new-option input if its available
                     this.setState({
@@ -192,13 +191,16 @@ class OptionList extends React.Component {
             selectedOptionIndex: this.props.options.findIndex(o => o.id === option.id),
             selectedOptionState: SelectedOptionsStates.selected,
             isCurrentChoice: false,
-            lastRequestedChoiceId: option.nextChoice.id,
+            focusOptionInput: false,
+            updatingOptionIndex: -1
         });
 
         if (option.nextChoice && option.nextChoice.id) {
+            // make sure the user didn't click a new option in the time it took to fetch the choice
+            this.setState({ lastRequestedChoiceId: option.nextChoice.id });
             this.props.fetchingChoice(choiceIndex);
             const nextChoice = await getChoice(option.nextChoice.id);
-            // make sure the user didn't click a new option in the time it took to fetch the choice
+
             if (this.state.lastRequestedChoiceId === nextChoice.id) {
                 // it'd be cleaner to use rxjs/a subscription/observable, but i'm lazy and this is easy.
                 return this.props.addChoice(choiceIndex, nextChoice);
