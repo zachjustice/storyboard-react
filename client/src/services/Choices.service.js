@@ -21,7 +21,10 @@ const createChoiceQuery = gql`
             content,
             options {
                 id,
-                description
+                description,
+                nextChoice {
+                    id
+                }
             }
         }
     }`;
@@ -29,11 +32,11 @@ const createChoiceQuery = gql`
 const getChoiceQuery = gql`
     query choice($id: String!) {
         choice(id: $id) {
-            id
-            content
+            id,
+            content,
             options {
-                id
-                description
+                id,
+                description,
                 nextChoice {
                     id
                 }
@@ -63,22 +66,29 @@ const updateOptionQuery = gql`
     }
 `;
 
-export async function createChoice(parentOptionId, content) {
+export async function createChoice(parentChoiceId, parentOptionId, content) {
     return await client.mutate({
         variables: {
             content,
             parentOptionId
         },
         mutation: createChoiceQuery,
+        // refetch the parentChoiceId so that its option points to the newly created choice
+        refetchQueries: [{
+            query: getChoiceQuery,
+            variables: {id: parentChoiceId}
+        }],
         update: (store, {data: {createChoice}}) => {
             console.log('createChoice', createChoice);
+
+            // cache the choice we just created
             store.writeQuery({
                 query: getChoiceQuery,
                 variables: {id: createChoice.id},
                 data: {
                     choice: {...createChoice}
                 },
-            })
+            });
         }
     }).then(({data}) => {
         return data.createChoice;
@@ -101,7 +111,11 @@ export async function createOption(parentChoiceId, optionDescription) {
                 }
             };
 
-            store.writeQuery({query: getChoiceQuery, variables: {id: parentChoiceId}, data: updatedChoice});
+            store.writeQuery({
+                query: getChoiceQuery,
+                variables: {id: parentChoiceId},
+                data: updatedChoice
+            });
         }
     }).then(({data}) => {
         return data.createOption;

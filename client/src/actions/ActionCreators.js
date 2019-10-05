@@ -11,10 +11,18 @@ export const fetchingChoice = (choiceIndex) => ({
     choiceIndex
 });
 
-export const createChoice = (choiceIndex, parentOptionId) => ({
+export const createChoice = (choiceIndex, parentChoiceId, parentOptionId) => ({
     type: ActionTypes.createChoice,
     choiceIndex,
+    parentChoiceId,
     parentOptionId,
+});
+
+export const createdChoice = (choiceIndex, parentOptionId, createdChoice) => ({
+    type: ActionTypes.createdChoice,
+    choiceIndex,
+    parentOptionId,
+    createdChoice,
 });
 
 export const undoChoiceSelection = (choiceIndex) => ({

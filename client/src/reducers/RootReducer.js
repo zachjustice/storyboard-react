@@ -14,7 +14,32 @@ function rootReducer(state = {choices: []}, action) {
         return {
             fetchingChoice: false,
             choices: state.choices.splice(0, action.choiceIndex + 1),
-            createChoice: {parentOptionId: action.parentOptionId},
+            createChoice: {
+                parentOptionId: action.parentOptionId,
+                parentChoiceId: action.parentChoiceId,
+            },
+        }
+    } else if (action.type === ActionTypes.createdChoice) {
+        // add choice but make sure to set the nextOptionId of the parentChoice
+        return {
+            fetchingChoice: false,
+            choices: state.choices.splice(0, action.choiceIndex + 1).concat(action.createdChoice)
+                .map((choice, index) => {
+                    if (index === action.choiceIndex - 1) {
+                        return { ...choice,
+                            options: choice.options.map(option => {
+                                if (option.id === action.parentOptionId) {
+                                    return { ...option,
+                                        nextChoice: {id: action.createdChoice.id}
+                                    }
+                                }
+                                return option
+                            })
+                        }
+                    }
+                    return choice;
+                }),
+            createChoice: null,
         }
     } else if (action.type === ActionTypes.fetchingChoice) {
         // replace last choice with a "..."

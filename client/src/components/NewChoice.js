@@ -1,12 +1,12 @@
 import React from 'react';
 import {connect} from "react-redux";
-import {addChoice, undoChoiceSelection} from "../actions/ActionCreators";
+import {createdChoice, undoChoiceSelection} from "../actions/ActionCreators";
 import {createChoice} from "../services/Choices.service";
 import {Keys} from "../util/Keys";
 import SubmittableInput from "./SubmittableInput";
 
 const mapDispatchToProps = dispatch => ({
-    addChoice: (choiceIndex, choice) => dispatch(addChoice(choiceIndex, choice)),
+    createdChoice: (choiceIndex, parentOptionId, choice) => dispatch(createdChoice(choiceIndex, parentOptionId, choice)),
     undoChoiceSelection: (choiceIndex) => dispatch(undoChoiceSelection(choiceIndex)),
 });
 
@@ -29,7 +29,7 @@ class NewChoice extends React.Component {
                     <SubmittableInput autofocus={true}
                                       focus={true}
                                       placeholder="What's next...?"
-                                      submit={(choiceContent) => this.submit(this.props.choiceIndex, this.props.parentOptionId, choiceContent)}
+                                      submit={(choiceContent) => this.submit(this.props.choiceIndex, this.props.parentChoiceId, this.props.parentOptionId, choiceContent)}
                                       initialValue={''}/>
                 </div>
             </div>
@@ -59,12 +59,12 @@ class NewChoice extends React.Component {
         }
     };
 
-    submit = async (choiceIndex, parentOptionId, choiceContent) => {
+    submit = async (choiceIndex, parentChoiceId, parentOptionId, choiceContent) => {
         this.setState({creatingChoice: true});
-        const choice = await createChoice(parentOptionId, choiceContent);
+        const choice = await createChoice(parentChoiceId, parentOptionId, choiceContent);
         this.setState({creatingChoice: false});
 
-        return this.props.addChoice(choiceIndex, choice);
+        return this.props.createdChoice(choiceIndex, parentOptionId, choice);
     };
 }
 

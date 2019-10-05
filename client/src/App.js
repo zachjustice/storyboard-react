@@ -32,6 +32,7 @@ class ConnectedApp extends Component {
                 </div>
                 {this.props.createChoice && !this.props.fetchingChoice && (
                     <NewChoice choiceIndex={this.props.choices.length}
+                               parentChoiceId={this.props.createChoice.parentChoiceId}
                                parentOptionId={this.props.createChoice.parentOptionId}/>
                 )}
                 {this.props.fetchingChoice && '...'}

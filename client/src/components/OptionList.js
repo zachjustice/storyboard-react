@@ -13,7 +13,7 @@ const SelectedOptionsStates = {
 
 const mapDispatchToProps = dispatch => ({
     addChoice: (choiceIndex, choice) => dispatch(addChoice(choiceIndex, choice)),
-    createChoice: (choiceIndex, parentOptionId) => dispatch(createChoice(choiceIndex, parentOptionId)),
+    createChoice: (choiceIndex, parentChoiceId, parentOptionId) => dispatch(createChoice(choiceIndex, parentChoiceId, parentOptionId)),
     fetchingChoice: (choiceIndex) => dispatch(fetchingChoice(choiceIndex)),
     undoChoiceSelection: (choiceIndex) => dispatch(undoChoiceSelection(choiceIndex)),
 });
@@ -48,7 +48,7 @@ class OptionList extends React.Component {
                                                   initialValue={option.description}/>)
                     } else {
                         return (<Option option={option}
-                                        selectOption={(option) => this.selectOption(this.props.choiceIndex, option)}
+                                        selectOption={(option) => this.selectOption(this.props.choiceIndex, this.props.choiceId, option)}
                                         isSelected={this.state.selectedOptionIndex === index && this.state.selectedOptionState === SelectedOptionsStates.selected}
                                         isHovered={this.state.selectedOptionIndex === index && this.state.selectedOptionState === SelectedOptionsStates.hovered}
                                         key={'option-' + option.id}/>)
@@ -145,7 +145,7 @@ class OptionList extends React.Component {
                 const availableOptions = (this.props.options || []);
                 const optionIndex = Number(event.key) - Number(Keys.one);
                 if (optionIndex < availableOptions.length) {
-                    await this.selectOption(this.props.choiceIndex, this.props.options[optionIndex]);
+                    await this.selectOption(this.props.choiceIndex, this.props.choiceId, this.props.options[optionIndex]);
                 } else if (optionIndex < 3) {
                     // focus new-option input if its available
                     this.setState({
@@ -156,7 +156,7 @@ class OptionList extends React.Component {
                 }
                 break;
             case Keys.enter:
-                this.selectOption(this.props.choiceIndex, this.props.options[this.state.selectedOptionIndex]);
+                this.selectOption(this.props.choiceIndex, this.props.choiceId, this.props.options[this.state.selectedOptionIndex]);
                 break;
             case Keys.e:
                 console.log('e', this.state.selectedOptionIndex);
@@ -183,7 +183,7 @@ class OptionList extends React.Component {
         });
     };
 
-    selectOption = async (choiceIndex, option) => {
+    selectOption = async (choiceIndex, choiceId, option) => {
         if (!option) return;
         document.removeEventListener('keydown', this.onKeyDown);
 
@@ -206,7 +206,7 @@ class OptionList extends React.Component {
                 return this.props.addChoice(choiceIndex, nextChoice);
             }
         } else {
-            return this.props.createChoice(choiceIndex, option.id);
+            return this.props.createChoice(choiceIndex, choiceId, option.id);
         }
     };
 
