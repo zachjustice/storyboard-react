@@ -1,1 +1,10 @@
-{}
+{
+	"auth": {
+		"storyboard29677556": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation",
+			"dependsOn": [],
+			"customAuth": false
+		}
+	}
+}

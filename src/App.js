@@ -3,6 +3,11 @@ import './App.css';
 import NewChoice from './components/NewChoice';
 import Choice from "./components/Choice";
 import {connect} from "react-redux";
+import Amplify from 'aws-amplify';
+import awsconfig from './aws-exports';
+import { withAuthenticator } from 'aws-amplify-react'; // or 'aws-amplify-react-native';
+
+Amplify.configure(awsconfig);
 
 const mapStateToProps = (state) => ({...state});
 
@@ -47,4 +52,4 @@ class ConnectedApp extends Component {
 
 const App = connect(mapStateToProps)(ConnectedApp);
 
-export default App;
+export default withAuthenticator(App, true);
