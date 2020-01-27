@@ -1,0 +1,22 @@
+type Story @model {
+    id: ID!
+    start: Page
+    description: String!
+    author: String!
+    editors: [String!]
+    private: [String!]
+}
+
+type Page @model {
+    id: ID!
+    content: String!
+    choices: [Choice] @connection(keyName: "byChoice", fields: ["id"])
+}
+
+type Choice @model
+@key(name: "byChoice", fields: ["pageId", "content"]) {
+    id: ID!
+    pageId: ID!
+    content: String!
+    parentPage: Page @connection(fields: ["pageId"])
+}
